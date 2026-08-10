@@ -667,6 +667,16 @@ a.sidebar-item.locked:hover {
   text-align: center;
 }
 
+.saas-payment .saas-title {
+  margin-bottom: 16px;
+}
+.saas-payment .withdraw-amount-row {
+  margin-top: 0;
+}
+.saas-payment .withdraw-btn + .withdraw-btn {
+  margin-top: 10px;
+}
+
 @media (max-width: 700px) {
   .sidebar { display: none; }
   .content { padding: 20px; }

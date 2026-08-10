@@ -34,7 +34,7 @@ const els = {
   withdrawForm: document.getElementById("withdrawForm"),
   withdrawSuccess: document.getElementById("withdrawSuccess"),
   withdrawAmount: document.getElementById("withdrawAmount"),
-  methodTabs: document.querySelectorAll(".method-tab"),
+  methodTabs: document.querySelectorAll("#withdrawForm .method-tab"),
   panelCard: document.getElementById("panelCard"),
   panelSbp: document.getElementById("panelSbp"),
   cardNumber: document.getElementById("cardNumber"),

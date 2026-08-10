@@ -124,6 +124,37 @@
       <div class="saas-note">Демо-режим: оплата имитируется и не списывает реальные средства.</div>
     </div>
 
+    <div class="saas-payment hidden" id="paywallPayment">
+      <h2 class="saas-title">Оплата подписки</h2>
+      <div class="withdraw-amount-row">
+        <span class="balance-label">К оплате</span>
+        <span class="withdraw-amount">2 990 <span class="currency">₽</span></span>
+      </div>
+
+      <div class="method-tabs">
+        <button type="button" class="method-tab active" data-method="card">Банковская карта</button>
+        <button type="button" class="method-tab" data-method="sbp">СБП</button>
+      </div>
+
+      <div class="method-panel" id="paywallPanelCard">
+        <label class="field-label" for="paywallCardNumber">Номер карты</label>
+        <div class="card-input-wrap">
+          <span class="card-brand" id="paywallCardBrand"></span>
+          <input type="text" id="paywallCardNumber" class="field-input" placeholder="0000 0000 0000 0000" inputmode="numeric" maxlength="19" />
+        </div>
+      </div>
+
+      <div class="method-panel hidden" id="paywallPanelSbp">
+        <label class="field-label" for="paywallPhoneNumber">Номер телефона</label>
+        <input type="text" id="paywallPhoneNumber" class="field-input" placeholder="+7 900 000-00-00" inputmode="tel" maxlength="18" />
+      </div>
+
+      <div class="field-error" id="paywallPayError"></div>
+
+      <button id="paywallConfirmBtn" class="withdraw-btn">Оплатить 2 990 ₽</button>
+      <button id="paywallBackBtn" class="withdraw-btn secondary">Назад</button>
+    </div>
+
     <div class="withdraw-success hidden" id="paywallSuccess">
       <div class="success-icon">✓</div>
       <div class="success-title">Платёж имитирован</div>
