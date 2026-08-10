@@ -99,12 +99,34 @@ body {
   font-size: 14px;
   color: var(--text);
   cursor: default;
+  text-decoration: none;
 }
 .sidebar-item.active {
   background: #eaf3fc;
   color: var(--blue-dark);
   font-weight: 600;
   border-right: 3px solid var(--blue);
+}
+
+a.sidebar-item {
+  cursor: pointer;
+}
+a.sidebar-item.locked {
+  color: var(--text-muted);
+}
+a.sidebar-item.locked:hover {
+  background: #f7f9fb;
+}
+.sidebar-item.locked-feature {
+  cursor: pointer;
+  color: var(--text-muted);
+}
+.sidebar-item.locked-feature:hover {
+  background: #f7f9fb;
+}
+.lock-icon {
+  margin-left: auto;
+  font-size: 12px;
 }
 
 .dot {
@@ -507,6 +529,142 @@ body {
 }
 .success-meta span:last-child {
   font-weight: 700;
+}
+
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: #26313d;
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  z-index: 50;
+}
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Paywall modal */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 25, 40, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 100;
+}
+
+.modal {
+  position: relative;
+  background: #fff;
+  border-radius: 16px;
+  padding: 32px 32px 26px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+  animation: pop 0.3s ease;
+}
+
+.modal-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: #f0f2f5;
+  border-radius: 50%;
+  font-size: 16px;
+  line-height: 1;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+.modal-close:hover { background: #e3e6ea; }
+
+.saas-badge {
+  display: inline-block;
+  background: linear-gradient(90deg, var(--blue), var(--blue-dark));
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  margin-bottom: 14px;
+}
+
+.saas-title {
+  margin: 0 0 8px;
+  font-size: 21px;
+  font-weight: 800;
+}
+
+.saas-subtitle {
+  margin: 0 0 18px;
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+.saas-subtitle strong,
+.saas-subtitle span {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.saas-features {
+  list-style: none;
+  margin: 0 0 20px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+.saas-features li {
+  font-size: 13px;
+  color: var(--text);
+  background: #f7f9fb;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 9px 12px;
+}
+
+.saas-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 18px;
+}
+.saas-price {
+  font-size: 30px;
+  font-weight: 800;
+  color: var(--blue-dark);
+}
+.saas-price-period {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.saas-pay-btn {
+  margin-top: 0;
+}
+
+.saas-note {
+  margin-top: 12px;
+  font-size: 11px;
+  color: var(--text-muted);
+  text-align: center;
 }
 
 @media (max-width: 700px) {

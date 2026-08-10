@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>АМС-КОМПЛЕКС · Дурак Онлайн</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%231565c0%22/><text x=%2250%22 y=%2268%22 font-size=%2260%22 fill=%22white%22 text-anchor=%22middle%22 font-family=%22Arial%22>A</text></svg>" />
+<link rel="stylesheet" href="style.css" />
+<link rel="stylesheet" href="durak.css" />
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-left">
+    <div class="logo">A</div>
+    <span class="brand">АМС-КОМПЛЕКС</span>
+    <nav class="topnav">
+      <a href="index.html">Слот-Симулятор</a>
+      <a href="#" class="active">Дурак Онлайн</a>
+    </nav>
+  </div>
+  <div class="topbar-right">
+    <span class="install">Инсталляция: 001 - АО "Золото Селигдара" <span class="chev">▾</span></span>
+    <span class="user">System Administrator <span class="chev">▾</span></span>
+    <span class="help">?</span>
+  </div>
+</header>
+
+<div class="page">
+  <aside class="sidebar">
+    <div class="sidebar-item locked-feature" data-feature="Техобслуживание"><span class="dot dot-teal"></span>Техобслуживание<span class="lock-icon">🔒</span></div>
+    <div class="sidebar-item locked-feature" data-feature="Отклонения"><span class="dot dot-red"></span>Отклонения<span class="lock-icon">🔒</span></div>
+    <div class="sidebar-item locked-feature" data-feature="Склад"><span class="dot dot-purple"></span>Склад<span class="lock-icon">🔒</span></div>
+    <div class="sidebar-item locked-feature" data-feature="Закупки"><span class="dot dot-green"></span>Закупки<span class="lock-icon">🔒</span></div>
+    <div class="sidebar-item locked-feature" data-feature="Справочники"><span class="dot dot-orange"></span>Справочники<span class="lock-icon">🔒</span></div>
+    <div class="sidebar-item locked-feature" data-feature="Уведомления"><span class="dot dot-blue"></span>Уведомления<span class="lock-icon">🔒</span></div>
+    <a href="index.html" class="sidebar-item">
+      <span class="dot dot-cyan"></span>Слот-Симулятор
+    </a>
+    <div class="sidebar-item active"><span class="dot dot-red"></span>Дурак Онлайн</div>
+  </aside>
+
+  <main class="content">
+    <div class="card lock-card" id="lockScreen">
+      <div class="card-header">
+        <span class="card-icon">🔒</span>
+        <h1>Дурак Онлайн заблокирован</h1>
+      </div>
+      <p class="subtitle">
+        Наберите <strong id="lockTarget">500 000 ₽</strong> в Слот-Симуляторе, чтобы открыть игру.
+      </p>
+      <div class="lock-progress-row">
+        <span class="balance-label">Текущий баланс</span>
+        <span class="lock-progress-value"><span id="lockBalance">0</span> <span class="currency">₽</span></span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="lockProgressFill"></div>
+      </div>
+      <a href="index.html" class="spin-btn lock-cta">Перейти в Слот-Симулятор</a>
+    </div>
+
+    <div class="card durak-card hidden" id="game">
+      <div class="card-header">
+        <span class="card-icon">🃏</span>
+        <h1>Дурак Онлайн</h1>
+        <button id="newGameBtn" class="new-game-btn">Новая игра</button>
+      </div>
+      <p class="subtitle">Классический подкидной дурак против бота. 36 карт, козырь снизу колоды.</p>
+
+      <div class="durak-meta">
+        <div class="meta-chip">
+          <span class="balance-label">Козырь</span>
+          <span id="trumpDisplay" class="meta-value">—</span>
+        </div>
+        <div class="meta-chip">
+          <span class="balance-label">В колоде</span>
+          <span id="deckCount" class="meta-value">0</span>
+        </div>
+        <div class="meta-chip">
+          <span class="balance-label">У бота карт</span>
+          <span id="botCount" class="meta-value">0</span>
+        </div>
+      </div>
+
+      <div class="durak-status" id="durakStatus">Раздаём карты...</div>
+
+      <div class="bot-hand" id="botHand"></div>
+
+      <div class="durak-table" id="durakTable"></div>
+
+      <div class="durak-controls">
+        <button id="takeBtn" class="withdraw-btn secondary hidden">Взять карты</button>
+        <button id="bitoBtn" class="withdraw-btn hidden">Бито</button>
+      </div>
+
+      <div class="player-hand" id="playerHand"></div>
+    </div>
+  </main>
+</div>
+
+<div class="modal-overlay hidden" id="paywallOverlay">
+  <div class="modal saas-modal">
+    <button class="modal-close" id="paywallClose" aria-label="Закрыть">×</button>
+
+    <div class="saas-form" id="paywallForm">
+      <div class="saas-badge">🔒 АМС PRO</div>
+      <h2 class="saas-title">Оформите подписку</h2>
+      <p class="saas-subtitle">Раздел «<span id="paywallFeature">Техобслуживание</span>» и другие модули доступны на тарифе PRO.</p>
+
+      <ul class="saas-features">
+        <li>✓ Техобслуживание — учёт оборудования и наряды</li>
+        <li>✓ Отклонения — журнал инцидентов</li>
+        <li>✓ Склад — движение и остатки ТМЦ</li>
+        <li>✓ Закупки — формы и согласования</li>
+        <li>✓ Справочники — единый мастер-каталог</li>
+        <li>✓ Уведомления — оповещения в реальном времени</li>
+      </ul>
+
+      <div class="saas-price-row">
+        <span class="saas-price">2 990 ₽</span>
+        <span class="saas-price-period">/ месяц</span>
+      </div>
+
+      <button id="paywallPayBtn" class="withdraw-btn saas-pay-btn">Оплатить</button>
+      <div class="saas-note">Демо-режим: оплата имитируется и не списывает реальные средства.</div>
+    </div>
+
+    <div class="withdraw-success hidden" id="paywallSuccess">
+      <div class="success-icon">✓</div>
+      <div class="success-title">Платёж имитирован</div>
+      <div class="success-detail">Это демонстрационный стенд — модули остаются закрытыми.</div>
+      <button id="paywallDone" class="withdraw-btn secondary">Понятно</button>
+    </div>
+  </div>
+</div>
+
+<script src="durak.js"></script>
+<script src="paywall.js"></script>
+</body>
+</html>

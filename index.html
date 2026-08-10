@@ -25,13 +25,17 @@
 
 <div class="page">
   <aside class="sidebar">
-    <div class="sidebar-item"><span class="dot dot-teal"></span>Техобслуживание</div>
-    <div class="sidebar-item"><span class="dot dot-red"></span>Отклонения</div>
-    <div class="sidebar-item"><span class="dot dot-purple"></span>Склад</div>
-    <div class="sidebar-item"><span class="dot dot-green"></span>Закупки</div>
-    <div class="sidebar-item"><span class="dot dot-orange"></span>Справочники</div>
-    <div class="sidebar-item"><span class="dot dot-blue"></span>Уведомления</div>
+    <div class="sidebar-item locked-feature" data-feature="Техобслуживание"><span class="dot dot-teal"></span>Техобслуживание<span class="lock-icon">🔒</span></div>
+    <div class="sidebar-item locked-feature" data-feature="Отклонения"><span class="dot dot-red"></span>Отклонения<span class="lock-icon">🔒</span></div>
+    <div class="sidebar-item locked-feature" data-feature="Склад"><span class="dot dot-purple"></span>Склад<span class="lock-icon">🔒</span></div>
+    <div class="sidebar-item locked-feature" data-feature="Закупки"><span class="dot dot-green"></span>Закупки<span class="lock-icon">🔒</span></div>
+    <div class="sidebar-item locked-feature" data-feature="Справочники"><span class="dot dot-orange"></span>Справочники<span class="lock-icon">🔒</span></div>
+    <div class="sidebar-item locked-feature" data-feature="Уведомления"><span class="dot dot-blue"></span>Уведомления<span class="lock-icon">🔒</span></div>
     <div class="sidebar-item active"><span class="dot dot-cyan"></span>Слот-Симулятор</div>
+    <a href="durak.html" id="durakNavItem" class="sidebar-item locked">
+      <span class="dot dot-red"></span>Дурак Онлайн
+      <span class="lock-icon" id="durakLockIcon">🔒</span>
+    </a>
   </aside>
 
   <main class="content">
@@ -121,6 +125,45 @@
   </main>
 </div>
 
+<div class="toast" id="lockToast"></div>
+
+<div class="modal-overlay hidden" id="paywallOverlay">
+  <div class="modal saas-modal">
+    <button class="modal-close" id="paywallClose" aria-label="Закрыть">×</button>
+
+    <div class="saas-form" id="paywallForm">
+      <div class="saas-badge">🔒 АМС PRO</div>
+      <h2 class="saas-title">Оформите подписку</h2>
+      <p class="saas-subtitle">Раздел «<span id="paywallFeature">Техобслуживание</span>» и другие модули доступны на тарифе PRO.</p>
+
+      <ul class="saas-features">
+        <li>✓ Техобслуживание — учёт оборудования и наряды</li>
+        <li>✓ Отклонения — журнал инцидентов</li>
+        <li>✓ Склад — движение и остатки ТМЦ</li>
+        <li>✓ Закупки — формы и согласования</li>
+        <li>✓ Справочники — единый мастер-каталог</li>
+        <li>✓ Уведомления — оповещения в реальном времени</li>
+      </ul>
+
+      <div class="saas-price-row">
+        <span class="saas-price">2 990 ₽</span>
+        <span class="saas-price-period">/ месяц</span>
+      </div>
+
+      <button id="paywallPayBtn" class="withdraw-btn saas-pay-btn">Оплатить</button>
+      <div class="saas-note">Демо-режим: оплата имитируется и не списывает реальные средства.</div>
+    </div>
+
+    <div class="withdraw-success hidden" id="paywallSuccess">
+      <div class="success-icon">✓</div>
+      <div class="success-title">Платёж имитирован</div>
+      <div class="success-detail">Это демонстрационный стенд — модули остаются закрытыми.</div>
+      <button id="paywallDone" class="withdraw-btn secondary">Понятно</button>
+    </div>
+  </div>
+</div>
+
 <script src="script.js"></script>
+<script src="paywall.js"></script>
 </body>
 </html>

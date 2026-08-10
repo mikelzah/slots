@@ -7,8 +7,11 @@ const SYMBOLS = [
   { icon: "7️⃣", mult: 20 },
 ];
 
+const BALANCE_KEY = "amsBalance";
+const DURAK_UNLOCK = 500000;
+
 const state = {
-  balance: 1000,
+  balance: Number(localStorage.getItem(BALANCE_KEY)) || 1000,
   bet: 50,
   spinning: false,
   method: "card",
@@ -43,6 +46,9 @@ const els = {
   successAmount: document.getElementById("successAmount"),
   successId: document.getElementById("successId"),
   successTime: document.getElementById("successTime"),
+  durakNavItem: document.getElementById("durakNavItem"),
+  durakLockIcon: document.getElementById("durakLockIcon"),
+  lockToast: document.getElementById("lockToast"),
 };
 
 function formatNumber(n) {
@@ -51,7 +57,32 @@ function formatNumber(n) {
 
 function renderBalance() {
   els.balance.textContent = formatNumber(state.balance);
+  localStorage.setItem(BALANCE_KEY, state.balance);
+  updateDurakLock();
 }
+
+let toastTimer = null;
+function showToast(text) {
+  els.lockToast.textContent = text;
+  els.lockToast.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => els.lockToast.classList.remove("show"), 2600);
+}
+
+function updateDurakLock() {
+  const unlocked = state.balance >= DURAK_UNLOCK;
+  els.durakNavItem.classList.toggle("locked", !unlocked);
+  els.durakLockIcon.textContent = unlocked ? "" : "🔒";
+}
+
+els.durakNavItem.addEventListener("click", (e) => {
+  if (state.balance < DURAK_UNLOCK) {
+    e.preventDefault();
+    showToast(
+      `Наберите ${formatNumber(DURAK_UNLOCK)} ₽, чтобы открыть Дурак Онлайн (сейчас ${formatNumber(state.balance)} ₽)`
+    );
+  }
+});
 
 function renderBet() {
   els.bet.textContent = formatNumber(state.bet);
