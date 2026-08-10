@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>АМС-КОМПЛЕКС · Слот-Симулятор</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%231565c0%22/><text x=%2250%22 y=%2268%22 font-size=%2260%22 fill=%22white%22 text-anchor=%22middle%22 font-family=%22Arial%22>A</text></svg>" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-left">
+    <div class="logo">A</div>
+    <span class="brand">АМС-КОМПЛЕКС</span>
+    <nav class="topnav">
+      <a href="#" class="active">Слот-Симулятор</a>
+    </nav>
+  </div>
+  <div class="topbar-right">
+    <span class="install">Инсталляция: 001 - АО "Золото Селигдара" <span class="chev">▾</span></span>
+    <span class="user">System Administrator <span class="chev">▾</span></span>
+    <span class="help">?</span>
+  </div>
+</header>
+
+<div class="page">
+  <aside class="sidebar">
+    <div class="sidebar-item"><span class="dot dot-teal"></span>Техобслуживание</div>
+    <div class="sidebar-item"><span class="dot dot-red"></span>Отклонения</div>
+    <div class="sidebar-item"><span class="dot dot-purple"></span>Склад</div>
+    <div class="sidebar-item"><span class="dot dot-green"></span>Закупки</div>
+    <div class="sidebar-item"><span class="dot dot-orange"></span>Справочники</div>
+    <div class="sidebar-item"><span class="dot dot-blue"></span>Уведомления</div>
+    <div class="sidebar-item active"><span class="dot dot-cyan"></span>Слот-Симулятор</div>
+  </aside>
+
+  <main class="content">
+    <div class="card slot-card">
+      <div class="card-header">
+        <span class="card-icon">🎰</span>
+        <h1>Слот-Симулятор</h1>
+      </div>
+      <p class="subtitle">Демонстрационный модуль. Здесь всегда выигрывает клиент.</p>
+
+      <div class="balance-row">
+        <div class="balance">
+          <span class="balance-label">Баланс</span>
+          <span id="balance" class="balance-value">1 000</span>
+        </div>
+        <div class="bet">
+          <span class="balance-label">Ставка</span>
+          <div class="bet-controls">
+            <button id="betMinus" class="bet-btn">−</button>
+            <span id="bet" class="bet-value">50</span>
+            <button id="betPlus" class="bet-btn">+</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="reels" id="reels">
+        <div class="reel"><div class="reel-strip" id="strip0"></div></div>
+        <div class="reel"><div class="reel-strip" id="strip1"></div></div>
+        <div class="reel"><div class="reel-strip" id="strip2"></div></div>
+      </div>
+
+      <div class="message" id="message">Нажмите «Крутить», чтобы начать!</div>
+
+      <button id="spinBtn" class="spin-btn">Крутить</button>
+
+      <div class="footnote">Симулятор создан в демонстрационных целях и не выражает реальных шансов на выигрыш.</div>
+    </div>
+  </main>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
