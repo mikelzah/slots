@@ -1,11 +1,13 @@
 const SYMBOLS = [
-  { icon: "🍒", mult: 2 },
-  { icon: "🍋", mult: 3 },
-  { icon: "🍇", mult: 4 },
-  { icon: "⭐", mult: 6 },
-  { icon: "💎", mult: 10 },
-  { icon: "7️⃣", mult: 20 },
+  { icon: "🍒", weight: 35, pay: { 3: 1, 4: 3, 5: 8 } },
+  { icon: "🍋", weight: 25, pay: { 3: 2, 4: 5, 5: 12 } },
+  { icon: "🍇", weight: 18, pay: { 3: 3, 4: 8, 5: 20 } },
+  { icon: "⭐", weight: 12, pay: { 3: 5, 4: 15, 5: 40 } },
+  { icon: "💎", weight: 7, pay: { 3: 10, 4: 30, 5: 80 } },
+  { icon: "7️⃣", weight: 3, pay: { 3: 20, 4: 60, 5: 150 } },
 ];
+
+const REEL_COUNT = 5;
 
 const BALANCE_KEY = "amsBalance";
 const DURAK_UNLOCK = 500000;
@@ -29,7 +31,11 @@ const els = {
     document.getElementById("strip0"),
     document.getElementById("strip1"),
     document.getElementById("strip2"),
+    document.getElementById("strip3"),
+    document.getElementById("strip4"),
   ],
+  paytableRows: document.getElementById("paytableRows"),
+  paytableBet: document.getElementById("paytableBet"),
   withdrawCard: document.getElementById("withdrawCard"),
   withdrawForm: document.getElementById("withdrawForm"),
   withdrawSuccess: document.getElementById("withdrawSuccess"),
@@ -59,6 +65,12 @@ function renderBalance() {
   els.balance.textContent = formatNumber(state.balance);
   localStorage.setItem(BALANCE_KEY, state.balance);
   updateDurakLock();
+  syncWithdrawAmount();
+}
+
+function syncWithdrawAmount() {
+  els.withdrawAmount.textContent = formatNumber(state.balance);
+  els.withdrawCard.dataset.amount = state.balance;
 }
 
 let toastTimer = null;
@@ -86,10 +98,35 @@ els.durakNavItem.addEventListener("click", (e) => {
 
 function renderBet() {
   els.bet.textContent = formatNumber(state.bet);
+  els.paytableBet.textContent = formatNumber(state.bet);
+  renderPaytable();
 }
 
-function randomSymbol() {
-  return SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)];
+function renderPaytable() {
+  els.paytableRows.innerHTML = "";
+  SYMBOLS.forEach((sym) => {
+    const row = document.createElement("div");
+    row.className = "paytable-row";
+    row.innerHTML = `
+      <span class="paytable-symbol">${sym.icon}</span>
+      <span class="paytable-values">
+        <span>×3<b>${formatNumber(sym.pay[3] * state.bet)}</b></span>
+        <span>×4<b>${formatNumber(sym.pay[4] * state.bet)}</b></span>
+        <span>×5<b>${formatNumber(sym.pay[5] * state.bet)}</b></span>
+      </span>
+    `;
+    els.paytableRows.appendChild(row);
+  });
+}
+
+function weightedRandomSymbol() {
+  const total = SYMBOLS.reduce((sum, s) => sum + s.weight, 0);
+  let r = Math.random() * total;
+  for (const sym of SYMBOLS) {
+    if (r < sym.weight) return sym;
+    r -= sym.weight;
+  }
+  return SYMBOLS[SYMBOLS.length - 1];
 }
 
 els.betMinus.addEventListener("click", () => {
@@ -114,7 +151,7 @@ function spinReel(index, delay, duration) {
     setTimeout(() => {
       reelEl.classList.add("spinning");
       const cycle = setInterval(() => {
-        setReelSymbol(index, randomSymbol().icon);
+        setReelSymbol(index, weightedRandomSymbol().icon);
       }, 60);
 
       setTimeout(() => {
@@ -127,7 +164,7 @@ function spinReel(index, delay, duration) {
 }
 
 async function spin() {
-  if (state.spinning) return;
+  if (state.spinning || state.withdrawing) return;
   if (state.bet > state.balance) {
     els.message.textContent = "Недостаточно средств для этой ставки.";
     els.message.classList.remove("win");
@@ -144,48 +181,37 @@ async function spin() {
   state.balance -= state.bet;
   renderBalance();
 
-  const winSymbol = randomSymbol();
+  const outcome = els.reels.map(() => weightedRandomSymbol());
 
-  await Promise.all([
-    spinReel(0, 0, 700),
-    spinReel(1, 150, 850),
-    spinReel(2, 300, 1000),
-  ]);
+  await Promise.all(
+    els.reels.map((_, i) => spinReel(i, i * 130, 650 + i * 150))
+  );
 
-  setReelSymbol(0, winSymbol.icon);
-  setReelSymbol(1, winSymbol.icon);
-  setReelSymbol(2, winSymbol.icon);
+  outcome.forEach((sym, i) => setReelSymbol(i, sym.icon));
 
-  const winnings = state.bet * winSymbol.mult;
-  state.balance += winnings;
-  renderBalance();
+  let matchCount = 1;
+  while (matchCount < outcome.length && outcome[matchCount].icon === outcome[0].icon) {
+    matchCount++;
+  }
 
-  els.message.textContent = `ПОЗДРАВЛЯЕМ! ВЫ ВЫИГРАЛИ ${formatNumber(winnings)} !`;
-  els.message.classList.add("win");
+  if (matchCount >= 3) {
+    const winnings = state.bet * outcome[0].pay[matchCount];
+    state.balance += winnings;
+    renderBalance();
+    els.message.textContent = `${outcome[0].icon} × ${matchCount} — ВЫИГРЫШ ${formatNumber(winnings)} ₽!`;
+    els.message.classList.add("win");
+  } else {
+    els.message.textContent = "Комбинации нет. Попробуйте ещё раз.";
+    els.message.classList.remove("win");
+  }
 
   state.spinning = false;
   els.spinBtn.disabled = false;
   els.betMinus.disabled = false;
   els.betPlus.disabled = false;
-
-  showWithdrawCard(winnings);
 }
 
 els.spinBtn.addEventListener("click", spin);
-
-function showWithdrawCard(amount) {
-  els.withdrawAmount.textContent = formatNumber(amount);
-  els.withdrawCard.dataset.amount = amount;
-  els.withdrawError.textContent = "";
-  els.cardNumber.value = "";
-  els.phoneNumber.value = "";
-  els.cardBrand.className = "card-brand";
-  els.withdrawBtn.disabled = false;
-  els.withdrawBtn.textContent = "Вывести";
-  els.withdrawSuccess.classList.add("hidden");
-  els.withdrawForm.classList.remove("hidden");
-  els.withdrawCard.classList.remove("hidden");
-}
 
 els.methodTabs.forEach((tab) => {
   tab.addEventListener("click", () => {
@@ -232,6 +258,10 @@ function randomTxId() {
 
 els.withdrawBtn.addEventListener("click", () => {
   if (state.withdrawing) return;
+  if (state.balance <= 0) {
+    els.withdrawError.textContent = "Баланс пуст — выводить нечего.";
+    return;
+  }
 
   if (state.method === "card") {
     const digits = els.cardNumber.value.replace(/\D/g, "");
@@ -251,9 +281,16 @@ els.withdrawBtn.addEventListener("click", () => {
   state.withdrawing = true;
   els.withdrawBtn.disabled = true;
   els.withdrawBtn.textContent = "Обработка...";
+  els.spinBtn.disabled = true;
+
+  const amount = Number(els.withdrawCard.dataset.amount || 0);
 
   setTimeout(() => {
-    const amount = Number(els.withdrawCard.dataset.amount || 0);
+    state.balance -= amount;
+    state.bet = Math.min(state.bet, Math.max(10, state.balance));
+    renderBalance();
+    renderBet();
+
     els.successAmount.textContent = `${formatNumber(amount)} ₽`;
     els.successId.textContent = randomTxId();
     els.successTime.textContent = new Date().toLocaleTimeString("ru-RU", {
@@ -263,13 +300,21 @@ els.withdrawBtn.addEventListener("click", () => {
     els.withdrawForm.classList.add("hidden");
     els.withdrawSuccess.classList.remove("hidden");
     state.withdrawing = false;
+    els.spinBtn.disabled = false;
   }, 1300);
 });
 
 els.withdrawDone.addEventListener("click", () => {
-  els.withdrawCard.classList.add("hidden");
+  els.withdrawError.textContent = "";
+  els.cardNumber.value = "";
+  els.phoneNumber.value = "";
+  els.cardBrand.className = "card-brand";
+  els.withdrawBtn.disabled = false;
+  els.withdrawBtn.textContent = "Вывести";
+  els.withdrawSuccess.classList.add("hidden");
+  els.withdrawForm.classList.remove("hidden");
 });
 
 renderBalance();
 renderBet();
-[0, 1, 2].forEach((i) => setReelSymbol(i, SYMBOLS[i].icon));
+els.reels.forEach((_, i) => setReelSymbol(i, SYMBOLS[i % SYMBOLS.length].icon));

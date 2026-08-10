@@ -45,7 +45,7 @@
           <span class="card-icon">🎰</span>
           <h1>Слот-Симулятор</h1>
         </div>
-        <p class="subtitle">Демонстрационный модуль. Здесь всегда выигрывает клиент.</p>
+        <p class="subtitle">Классический слот. 5 барабанов, линия слева направо, реальные шансы на выигрыш.</p>
 
         <div class="balance-row">
           <div class="balance">
@@ -62,20 +62,32 @@
           </div>
         </div>
 
-        <div class="reels" id="reels">
-          <div class="reel"><div class="reel-strip" id="strip0"></div></div>
-          <div class="reel"><div class="reel-strip" id="strip1"></div></div>
-          <div class="reel"><div class="reel-strip" id="strip2"></div></div>
+        <div class="slot-body">
+          <div class="reels-panel">
+            <div class="reels" id="reels">
+              <div class="reel"><div class="reel-strip" id="strip0"></div></div>
+              <div class="reel"><div class="reel-strip" id="strip1"></div></div>
+              <div class="reel"><div class="reel-strip" id="strip2"></div></div>
+              <div class="reel"><div class="reel-strip" id="strip3"></div></div>
+              <div class="reel"><div class="reel-strip" id="strip4"></div></div>
+            </div>
+
+            <div class="message" id="message">Нажмите «Крутить», чтобы начать!</div>
+
+            <button id="spinBtn" class="spin-btn">Крутить</button>
+          </div>
+
+          <div class="paytable" id="paytable">
+            <div class="paytable-title">Таблица выплат</div>
+            <div class="paytable-hint">Совпадения слева направо, ставка ₽<span id="paytableBet">50</span></div>
+            <div class="paytable-rows" id="paytableRows"></div>
+          </div>
         </div>
-
-        <div class="message" id="message">Нажмите «Крутить», чтобы начать!</div>
-
-        <button id="spinBtn" class="spin-btn">Крутить</button>
 
         <div class="footnote">Симулятор создан в демонстрационных целях и не выражает реальных шансов на выигрыш.</div>
       </div>
 
-      <div class="card withdraw-card hidden" id="withdrawCard">
+      <div class="card withdraw-card" id="withdrawCard">
         <div class="withdraw-form" id="withdrawForm">
           <div class="card-header">
             <span class="card-icon">💳</span>

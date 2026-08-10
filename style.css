@@ -154,7 +154,7 @@ a.sidebar-item.locked:hover {
   flex-direction: column;
   gap: 20px;
   width: 100%;
-  max-width: 560px;
+  max-width: 780px;
 }
 
 .hidden { display: none !important; }
@@ -175,7 +175,7 @@ a.sidebar-item.locked:hover {
 
 .slot-card {
   width: 100%;
-  max-width: 560px;
+  max-width: 780px;
 }
 
 .card-header {
@@ -247,20 +247,83 @@ a.sidebar-item.locked:hover {
   display: inline-block;
 }
 
+.slot-body {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.reels-panel {
+  flex: 1;
+  min-width: 0;
+}
+
+.paytable {
+  width: 220px;
+  flex-shrink: 0;
+  background: #f7f9fb;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+
+.paytable-title {
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.paytable-hint {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
+.paytable-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+}
+.paytable-row:last-child { border-bottom: none; }
+
+.paytable-symbol {
+  font-size: 18px;
+  width: 24px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.paytable-values {
+  display: flex;
+  gap: 7px;
+  font-size: 11px;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+.paytable-values b {
+  display: block;
+  color: var(--text);
+  font-size: 12px;
+}
+
 .reels {
   display: flex;
-  gap: 14px;
+  gap: 8px;
   justify-content: center;
   background: linear-gradient(180deg, #17324f, #0e2338);
   border-radius: 12px;
-  padding: 22px;
+  padding: 16px;
   margin-bottom: 22px;
   box-shadow: inset 0 0 0 3px #d4af37;
 }
 
 .reel {
-  width: 92px;
-  height: 92px;
+  width: 72px;
+  height: 72px;
   background: #fff;
   border-radius: 8px;
   overflow: hidden;
@@ -271,7 +334,7 @@ a.sidebar-item.locked:hover {
 }
 
 .reel-strip {
-  font-size: 46px;
+  font-size: 34px;
   transition: transform 0.08s linear;
 }
 
@@ -330,6 +393,9 @@ a.sidebar-item.locked:hover {
 /* Withdraw card */
 
 .withdraw-card {
+  width: 100%;
+  max-width: 560px;
+  align-self: center;
   animation: slideIn 0.35s ease;
 }
 
@@ -681,4 +747,9 @@ a.sidebar-item.locked:hover {
   .sidebar { display: none; }
   .content { padding: 20px; }
   .card { padding: 24px 20px; }
+  .slot-body { flex-direction: column; }
+  .paytable { width: 100%; }
+  .reel { width: 56px; height: 56px; }
+  .reel-strip { font-size: 26px; }
+  .reels { gap: 6px; padding: 12px; }
 }
