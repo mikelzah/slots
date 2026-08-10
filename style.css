@@ -111,12 +111,6 @@ body {
 a.sidebar-item {
   cursor: pointer;
 }
-a.sidebar-item.locked {
-  color: var(--text-muted);
-}
-a.sidebar-item.locked:hover {
-  background: #f7f9fb;
-}
 .sidebar-item.locked-feature {
   cursor: pointer;
   color: var(--text-muted);
@@ -595,28 +589,6 @@ a.sidebar-item.locked:hover {
 }
 .success-meta span:last-child {
   font-weight: 700;
-}
-
-.toast {
-  position: fixed;
-  bottom: 24px;
-  left: 50%;
-  transform: translateX(-50%) translateY(20px);
-  background: #26313d;
-  color: #fff;
-  padding: 12px 20px;
-  border-radius: 10px;
-  font-size: 13px;
-  font-weight: 600;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.25);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.25s ease, transform 0.25s ease;
-  z-index: 50;
-}
-.toast.show {
-  opacity: 1;
-  transform: translateX(-50%) translateY(0);
 }
 
 /* Paywall modal */

@@ -1,6 +1,3 @@
-const BALANCE_KEY = "amsBalance";
-const DURAK_UNLOCK = 500000;
-
 const SUITS = ["♠", "♥", "♦", "♣"];
 const RANKS = [6, 7, 8, 9, 10, 11, 12, 13, 14];
 const RANK_LABEL = { 11: "J", 12: "Q", 13: "K", 14: "A" };
@@ -346,24 +343,4 @@ els.newGameBtn.addEventListener("click", () => {
   initGame();
 });
 
-const lock = {
-  screen: document.getElementById("lockScreen"),
-  game: document.getElementById("game"),
-  lockBalance: document.getElementById("lockBalance"),
-  lockTarget: document.getElementById("lockTarget"),
-  lockProgressFill: document.getElementById("lockProgressFill"),
-};
-
-const currentBalance = Number(localStorage.getItem(BALANCE_KEY)) || 0;
-lock.lockTarget.textContent = `${formatNumber(DURAK_UNLOCK)} ₽`;
-lock.lockBalance.textContent = formatNumber(currentBalance);
-lock.lockProgressFill.style.width = `${Math.min(100, (currentBalance / DURAK_UNLOCK) * 100)}%`;
-
-if (currentBalance < DURAK_UNLOCK) {
-  lock.screen.classList.remove("hidden");
-  lock.game.classList.add("hidden");
-} else {
-  lock.screen.classList.add("hidden");
-  lock.game.classList.remove("hidden");
-  initGame();
-}
+initGame();

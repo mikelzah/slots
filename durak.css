@@ -1,39 +1,6 @@
-.lock-card, .durak-card {
+.durak-card {
   width: 100%;
   max-width: 720px;
-}
-
-.lock-progress-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin: 22px 0 10px;
-}
-
-.lock-progress-value {
-  font-size: 20px;
-  font-weight: 700;
-}
-
-.progress-track {
-  height: 10px;
-  background: #eef1f4;
-  border-radius: 6px;
-  overflow: hidden;
-  margin-bottom: 26px;
-}
-
-.progress-fill {
-  height: 100%;
-  width: 0%;
-  background: linear-gradient(90deg, var(--blue), var(--gold));
-  border-radius: 6px;
-  transition: width 0.4s ease;
-}
-
-.lock-cta {
-  text-decoration: none;
-  text-align: center;
 }
 
 .durak-card .card-header {

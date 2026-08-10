@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>АМС-КОМПЛЕКС · Дурак Онлайн</title>
+<title>АМС-КОМПЛЕКС · Шашки</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%231565c0%22/><text x=%2250%22 y=%2268%22 font-size=%2260%22 fill=%22white%22 text-anchor=%22middle%22 font-family=%22Arial%22>A</text></svg>" />
 <link rel="stylesheet" href="style.css" />
-<link rel="stylesheet" href="durak.css" />
+<link rel="stylesheet" href="checkers.css" />
 </head>
 <body>
 <header class="topbar">
@@ -15,8 +15,8 @@
     <span class="brand">АМС-КОМПЛЕКС</span>
     <nav class="topnav">
       <a href="index.html">Слот-Симулятор</a>
-      <a href="#" class="active">Дурак Онлайн</a>
-      <a href="checkers.html">Шашки</a>
+      <a href="durak.html">Дурак Онлайн</a>
+      <a href="#" class="active">Шашки</a>
     </nav>
   </div>
   <div class="topbar-right">
@@ -37,48 +37,41 @@
     <a href="index.html" class="sidebar-item">
       <span class="dot dot-cyan"></span>Слот-Симулятор
     </a>
-    <div class="sidebar-item active"><span class="dot dot-red"></span>Дурак Онлайн</div>
-    <a href="checkers.html" class="sidebar-item">
-      <span class="dot dot-orange"></span>Шашки
+    <a href="durak.html" class="sidebar-item">
+      <span class="dot dot-red"></span>Дурак Онлайн
     </a>
+    <div class="sidebar-item active"><span class="dot dot-orange"></span>Шашки</div>
   </aside>
 
   <main class="content">
-    <div class="card durak-card" id="game">
+    <div class="card checkers-card">
       <div class="card-header">
-        <span class="card-icon">🃏</span>
-        <h1>Дурак Онлайн</h1>
+        <span class="card-icon">⚫</span>
+        <h1>Шашки</h1>
         <button id="newGameBtn" class="new-game-btn">Новая игра</button>
       </div>
-      <p class="subtitle">Классический подкидной дурак против бота. 36 карт, козырь снизу колоды.</p>
+      <p class="subtitle">Классические шашки против бота. Взятие обязательно, дамка ходит и бьёт в любую сторону.</p>
 
-      <div class="durak-meta">
+      <div class="checkers-meta">
         <div class="meta-chip">
-          <span class="balance-label">Козырь</span>
-          <span id="trumpDisplay" class="meta-value">—</span>
+          <span class="balance-label">Ваши шашки</span>
+          <span id="playerCount" class="meta-value">12</span>
         </div>
         <div class="meta-chip">
-          <span class="balance-label">В колоде</span>
-          <span id="deckCount" class="meta-value">0</span>
-        </div>
-        <div class="meta-chip">
-          <span class="balance-label">У бота карт</span>
-          <span id="botCount" class="meta-value">0</span>
+          <span class="balance-label">Шашки бота</span>
+          <span id="botCount" class="meta-value">12</span>
         </div>
       </div>
 
-      <div class="durak-status" id="durakStatus">Раздаём карты...</div>
+      <div class="checkers-status" id="checkersStatus">Ваш ход — выберите шашку.</div>
 
-      <div class="bot-hand" id="botHand"></div>
+      <div class="board" id="board"></div>
 
-      <div class="durak-table" id="durakTable"></div>
-
-      <div class="durak-controls">
-        <button id="takeBtn" class="withdraw-btn secondary hidden">Взять карты</button>
-        <button id="bitoBtn" class="withdraw-btn hidden">Бито</button>
+      <div class="board-legend">
+        <span><span class="legend-dot player"></span>Вы</span>
+        <span><span class="legend-dot bot"></span>Бот</span>
+        <span><span class="legend-dot king"></span>Дамка</span>
       </div>
-
-      <div class="player-hand" id="playerHand"></div>
     </div>
   </main>
 </div>
@@ -150,7 +143,7 @@
   </div>
 </div>
 
-<script src="durak.js"></script>
+<script src="checkers.js"></script>
 <script src="paywall.js"></script>
 </body>
 </html>
