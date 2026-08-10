@@ -85,10 +85,12 @@
 .piece.player {
   background: radial-gradient(circle at 35% 30%, #fff7e0, var(--gold) 70%);
   color: #6b5416;
+  border: 2px solid rgba(107, 84, 22, 0.4);
 }
 .piece.bot {
-  background: radial-gradient(circle at 35% 30%, #3a536b, #0e2338 70%);
-  color: #cfe0f0;
+  background: radial-gradient(circle at 35% 30%, #4a4a52, #17171a 70%);
+  color: #e8e8ec;
+  border: 2px solid rgba(255, 255, 255, 0.55);
 }
 
 .piece.king::after {
@@ -116,7 +118,10 @@
   display: inline-block;
 }
 .legend-dot.player { background: var(--gold); }
-.legend-dot.bot { background: #0e2338; }
+.legend-dot.bot {
+  background: #17171a;
+  border: 2px solid rgba(255, 255, 255, 0.55);
+}
 .legend-dot.king {
   background: #fff;
   border: 2px solid var(--gold);
