@@ -127,6 +127,22 @@ body {
   justify-content: center;
 }
 
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  max-width: 560px;
+}
+
+.hidden { display: none !important; }
+
+.currency {
+  font-weight: 600;
+  color: var(--text-muted);
+  font-size: 0.7em;
+}
+
 .card {
   background: var(--card-bg);
   border: 1px solid var(--border);
@@ -287,6 +303,210 @@ body {
   font-size: 11px;
   color: var(--text-muted);
   text-align: center;
+}
+
+/* Withdraw card */
+
+.withdraw-card {
+  animation: slideIn 0.35s ease;
+}
+
+@keyframes slideIn {
+  0% { opacity: 0; transform: translateY(-10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.withdraw-amount-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f7f9fb;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 20px;
+  margin: 18px 0 20px;
+}
+
+.withdraw-amount {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.method-tabs {
+  display: flex;
+  gap: 8px;
+  background: #f0f2f5;
+  border-radius: 10px;
+  padding: 4px;
+  margin-bottom: 18px;
+}
+
+.method-tab {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 9px 8px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.method-tab.active {
+  background: #fff;
+  color: var(--blue-dark);
+  box-shadow: 0 1px 3px rgba(20,40,70,0.12);
+}
+
+.field-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.field-input {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 15px;
+  font-family: inherit;
+  color: var(--text);
+  background: #fff;
+  letter-spacing: 0.5px;
+}
+.field-input:focus {
+  outline: none;
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(26,115,199,0.15);
+}
+
+.card-input-wrap {
+  position: relative;
+}
+.card-input-wrap .field-input {
+  padding-right: 66px;
+}
+
+.card-brand {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 5px;
+  background: #9aa7b3;
+  visibility: hidden;
+}
+.card-brand.visa { visibility: visible; background: #1a5cb0; }
+.card-brand.mastercard { visibility: visible; background: linear-gradient(90deg, #eb001b, #f79e1b); }
+.card-brand.mir { visibility: visible; background: #1a9f4c; }
+
+.method-panel { margin-bottom: 8px; }
+
+.field-error {
+  min-height: 18px;
+  font-size: 12px;
+  color: var(--red);
+  margin: 8px 0 4px;
+}
+
+.withdraw-btn {
+  display: block;
+  width: 100%;
+  padding: 14px;
+  background: var(--blue);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  margin-top: 6px;
+  transition: background 0.15s ease, transform 0.05s ease;
+}
+.withdraw-btn:hover { background: var(--blue-dark); }
+.withdraw-btn:active { transform: translateY(1px); }
+.withdraw-btn:disabled { background: #a9c4de; cursor: not-allowed; }
+.withdraw-btn.secondary {
+  background: #eaf3fc;
+  color: var(--blue-dark);
+}
+.withdraw-btn.secondary:hover { background: #d9ecfb; }
+
+.withdraw-success {
+  text-align: center;
+  padding: 10px 0 4px;
+  animation: pop 0.4s ease;
+}
+
+.success-icon {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 16px;
+  border-radius: 50%;
+  background: #e6f6ea;
+  color: var(--green);
+  font-size: 28px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.success-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.success-amount {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--green);
+  margin-bottom: 6px;
+}
+
+.success-detail {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+
+.success-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  background: #f7f9fb;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-bottom: 20px;
+  text-align: left;
+}
+.success-meta > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+}
+.success-meta span:first-child {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  color: var(--text-muted);
+}
+.success-meta span:last-child {
+  font-weight: 700;
 }
 
 @media (max-width: 700px) {

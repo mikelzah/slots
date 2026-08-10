@@ -35,39 +35,88 @@
   </aside>
 
   <main class="content">
-    <div class="card slot-card">
-      <div class="card-header">
-        <span class="card-icon">🎰</span>
-        <h1>Слот-Симулятор</h1>
-      </div>
-      <p class="subtitle">Демонстрационный модуль. Здесь всегда выигрывает клиент.</p>
-
-      <div class="balance-row">
-        <div class="balance">
-          <span class="balance-label">Баланс</span>
-          <span id="balance" class="balance-value">1 000</span>
+    <div class="stack">
+      <div class="card slot-card">
+        <div class="card-header">
+          <span class="card-icon">🎰</span>
+          <h1>Слот-Симулятор</h1>
         </div>
-        <div class="bet">
-          <span class="balance-label">Ставка</span>
-          <div class="bet-controls">
-            <button id="betMinus" class="bet-btn">−</button>
-            <span id="bet" class="bet-value">50</span>
-            <button id="betPlus" class="bet-btn">+</button>
+        <p class="subtitle">Демонстрационный модуль. Здесь всегда выигрывает клиент.</p>
+
+        <div class="balance-row">
+          <div class="balance">
+            <span class="balance-label">Баланс</span>
+            <span><span id="balance" class="balance-value">1 000</span> <span class="currency">₽</span></span>
+          </div>
+          <div class="bet">
+            <span class="balance-label">Ставка</span>
+            <div class="bet-controls">
+              <button id="betMinus" class="bet-btn">−</button>
+              <span id="bet" class="bet-value">50</span>
+              <button id="betPlus" class="bet-btn">+</button>
+            </div>
           </div>
         </div>
+
+        <div class="reels" id="reels">
+          <div class="reel"><div class="reel-strip" id="strip0"></div></div>
+          <div class="reel"><div class="reel-strip" id="strip1"></div></div>
+          <div class="reel"><div class="reel-strip" id="strip2"></div></div>
+        </div>
+
+        <div class="message" id="message">Нажмите «Крутить», чтобы начать!</div>
+
+        <button id="spinBtn" class="spin-btn">Крутить</button>
+
+        <div class="footnote">Симулятор создан в демонстрационных целях и не выражает реальных шансов на выигрыш.</div>
       </div>
 
-      <div class="reels" id="reels">
-        <div class="reel"><div class="reel-strip" id="strip0"></div></div>
-        <div class="reel"><div class="reel-strip" id="strip1"></div></div>
-        <div class="reel"><div class="reel-strip" id="strip2"></div></div>
+      <div class="card withdraw-card hidden" id="withdrawCard">
+        <div class="withdraw-form" id="withdrawForm">
+          <div class="card-header">
+            <span class="card-icon">💳</span>
+            <h1>Вывод средств</h1>
+          </div>
+          <div class="withdraw-amount-row">
+            <span class="balance-label">Доступно к выводу</span>
+            <span class="withdraw-amount"><span id="withdrawAmount">0</span> <span class="currency">₽</span></span>
+          </div>
+
+          <div class="method-tabs">
+            <button type="button" class="method-tab active" data-method="card">Банковская карта</button>
+            <button type="button" class="method-tab" data-method="sbp">СБП</button>
+          </div>
+
+          <div class="method-panel" id="panelCard">
+            <label class="field-label" for="cardNumber">Номер карты</label>
+            <div class="card-input-wrap">
+              <span class="card-brand" id="cardBrand"></span>
+              <input type="text" id="cardNumber" class="field-input" placeholder="0000 0000 0000 0000" inputmode="numeric" maxlength="19" />
+            </div>
+          </div>
+
+          <div class="method-panel hidden" id="panelSbp">
+            <label class="field-label" for="phoneNumber">Номер телефона</label>
+            <input type="text" id="phoneNumber" class="field-input" placeholder="+7 900 000-00-00" inputmode="tel" maxlength="18" />
+          </div>
+
+          <div class="field-error" id="withdrawError"></div>
+
+          <button id="withdrawBtn" class="withdraw-btn">Вывести</button>
+        </div>
+
+        <div class="withdraw-success hidden" id="withdrawSuccess">
+          <div class="success-icon">✓</div>
+          <div class="success-title">Выплата отправлена</div>
+          <div class="success-amount" id="successAmount">0 ₽</div>
+          <div class="success-detail" id="successDetail">Зачисление в течение 15 минут</div>
+          <div class="success-meta">
+            <div><span>ID транзакции</span><span id="successId">—</span></div>
+            <div><span>Время</span><span id="successTime">—</span></div>
+          </div>
+          <button id="withdrawDone" class="withdraw-btn secondary">Готово</button>
+        </div>
       </div>
-
-      <div class="message" id="message">Нажмите «Крутить», чтобы начать!</div>
-
-      <button id="spinBtn" class="spin-btn">Крутить</button>
-
-      <div class="footnote">Симулятор создан в демонстрационных целях и не выражает реальных шансов на выигрыш.</div>
     </div>
   </main>
 </div>
