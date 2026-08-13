@@ -62,6 +62,7 @@ const els = {
   playerHand: document.getElementById("playerHand"),
   takeBtn: document.getElementById("takeBtn"),
   bitoBtn: document.getElementById("bitoBtn"),
+  giveBtn: document.getElementById("giveBtn"),
   newGameBtn: document.getElementById("newGameBtn"),
   difficultyTabs: document.querySelectorAll("#difficultyTabs .method-tab"),
 };
@@ -116,6 +117,7 @@ function initGame() {
     attackerIsPlayer: Math.random() < 0.5,
     busy: false,
     over: false,
+    botTaking: false,
   };
 
   startAttackTurn();
@@ -181,10 +183,12 @@ function render() {
     els.playerHand.appendChild(el);
   });
 
-  const canBito = !game.over && game.attackerIsPlayer && allDefended();
+  const canBito = !game.over && game.attackerIsPlayer && !game.botTaking && allDefended();
   const canTake = !game.over && !game.attackerIsPlayer && hasUndefended();
+  const canGive = !game.over && game.attackerIsPlayer && game.botTaking;
   els.bitoBtn.classList.toggle("hidden", !canBito);
   els.takeBtn.classList.toggle("hidden", !canTake);
+  els.giveBtn.classList.toggle("hidden", !canGive);
 }
 
 function playAttack(card, index) {
@@ -204,6 +208,24 @@ function handlePlayerCardClick(index) {
   if (game.attackerIsPlayer) {
     if (game.table.length === 0) {
       playAttack(card, index);
+      return;
+    }
+    if (game.botTaking) {
+      if (game.table.length >= 6) {
+        setStatus("На столе уже максимум карт для этого раунда.");
+        return;
+      }
+      const ranksOnTable = new Set(
+        game.table.flatMap((p) => [p.attack.rank, p.defend ? p.defend.rank : null]).filter((r) => r !== null)
+      );
+      if (!ranksOnTable.has(card.rank)) {
+        setStatus("Можно подкинуть только карту такого же достоинства, как на столе.");
+        return;
+      }
+      game.table.push({ attack: card, defend: null });
+      game.player.splice(index, 1);
+      render();
+      setStatus("Бот берёт карты. Подкиньте ещё или нажмите «Отдать карты боту».");
       return;
     }
     if (!allDefended()) {
@@ -321,7 +343,10 @@ function botDefendOne(pairIndex) {
   const atk = game.table[pairIndex].attack;
   const candidates = game.bot.filter((c) => cardBeats(c, atk, game.trumpSuit));
   if (candidates.length === 0) {
-    botTakesAll();
+    game.botTaking = true;
+    game.busy = false;
+    setStatus("Бот не может отбиться и берёт карты. Подкиньте ещё или нажмите «Отдать карты боту».");
+    render();
     return;
   }
 
@@ -394,6 +419,7 @@ function botAttack() {
 function botTakesAll() {
   game.bot.push(...game.table.flatMap((p) => [p.attack, p.defend].filter(Boolean)));
   game.table = [];
+  game.botTaking = false;
   setStatus("Бот забирает карты со стола.");
   render();
   drawPhase(["player"]);
@@ -456,24 +482,63 @@ function startAttackTurn() {
   }
 }
 
-els.takeBtn.addEventListener("click", () => {
-  if (game.busy || game.over) return;
+function botThrowInBeforePlayerTake() {
+  const ranksOnTable = new Set(
+    game.table.flatMap((p) => [p.attack.rank, p.defend ? p.defend.rank : null]).filter((r) => r !== null)
+  );
+  const candidates = game.bot.filter((c) => ranksOnTable.has(c.rank));
+  const canAdd = candidates.length > 0 && game.table.length < 6;
+  const chance = THROW_IN_CHANCE[botDifficulty];
+
+  if (canAdd && Math.random() < chance) {
+    let card;
+    if (botDifficulty === "easy") {
+      card = candidates[Math.floor(Math.random() * candidates.length)];
+    } else if (botDifficulty === "hard") {
+      const counts = rankCounts(game.bot);
+      card = [...candidates].sort((a, b) => counts[b.rank] - counts[a.rank] || a.rank - b.rank)[0];
+    } else {
+      card = [...candidates].sort((a, b) => a.rank - b.rank)[0];
+    }
+    game.bot.splice(game.bot.indexOf(card), 1);
+    game.table.push({ attack: card, defend: null });
+    render();
+    setStatus("Бот подкидывает ещё карту, прежде чем вы заберёте...");
+    setTimeout(botThrowInBeforePlayerTake, 500);
+  } else {
+    finalizePlayerTake();
+  }
+}
+
+function finalizePlayerTake() {
   game.player.push(...game.table.flatMap((p) => [p.attack, p.defend].filter(Boolean)));
   game.table = [];
   sortHand(game.player);
   setStatus("Вы забрали карты.");
-  game.busy = true;
   render();
   drawPhase(["bot"]);
   if (finishIfGameOver()) return;
   game.busy = false;
   startAttackTurn();
+}
+
+els.takeBtn.addEventListener("click", () => {
+  if (game.busy || game.over) return;
+  game.busy = true;
+  render();
+  botThrowInBeforePlayerTake();
 });
 
 els.bitoBtn.addEventListener("click", () => {
   if (game.busy || game.over) return;
   game.busy = true;
   finishRoundBito();
+});
+
+els.giveBtn.addEventListener("click", () => {
+  if (game.busy || game.over || !game.botTaking) return;
+  game.busy = true;
+  botTakesAll();
 });
 
 els.newGameBtn.addEventListener("click", () => {
