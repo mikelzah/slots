@@ -41,6 +41,8 @@
   font-weight: 700;
   margin-top: 2px;
 }
+.meta-value.red-text { color: var(--red); }
+.meta-value.black-text { color: #1a1a1a; }
 
 .durak-status {
   text-align: center;

@@ -111,13 +111,8 @@ function makeCardEl(card, { faceDown = false, clickable = false, extraClass = ""
 }
 
 function render() {
-  els.trumpDisplay.innerHTML = "";
-  const trumpEl = makeCardEl(game.trumpCard);
-  trumpEl.style.width = "auto";
-  trumpEl.style.height = "auto";
-  trumpEl.style.display = "inline-block";
   els.trumpDisplay.textContent = cardText(game.trumpCard);
-  els.trumpDisplay.className = `meta-value ${isRed(game.trumpCard.suit) ? "red-text" : ""}`;
+  els.trumpDisplay.className = `meta-value ${isRed(game.trumpCard.suit) ? "red-text" : "black-text"}`;
   els.deckCount.textContent = game.deck.length;
   els.botCount.textContent = game.bot.length;
 
@@ -181,6 +176,10 @@ function handlePlayerCardClick(index) {
     }
     if (game.table.length >= 6) {
       setStatus("На столе уже максимум карт для этого раунда.");
+      return;
+    }
+    if (game.bot.length === 0) {
+      setStatus("У бота не осталось карт — нажмите «Бито», чтобы завершить раунд.");
       return;
     }
     const ranksOnTable = new Set(game.table.flatMap((p) => [p.attack.rank, p.defend.rank]));
