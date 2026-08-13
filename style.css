@@ -428,6 +428,23 @@ a.sidebar-item {
   margin-bottom: 18px;
 }
 
+.difficulty-select {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+.difficulty-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.difficulty-select .method-tabs {
+  margin-bottom: 0;
+}
+
 .method-tab {
   flex: 1;
   border: none;

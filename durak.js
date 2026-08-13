@@ -40,6 +40,18 @@ function cardBeats(defCard, atkCard, trumpSuit) {
   return false;
 }
 
+function cardKey(c) {
+  return `${c.suit}${c.rank}`;
+}
+
+function fullDeckList() {
+  const list = [];
+  for (const suit of SUITS) {
+    for (const rank of RANKS) list.push({ suit, rank });
+  }
+  return list;
+}
+
 const els = {
   trumpDisplay: document.getElementById("trumpDisplay"),
   deckCount: document.getElementById("deckCount"),
@@ -51,7 +63,31 @@ const els = {
   takeBtn: document.getElementById("takeBtn"),
   bitoBtn: document.getElementById("bitoBtn"),
   newGameBtn: document.getElementById("newGameBtn"),
+  difficultyTabs: document.querySelectorAll("#difficultyTabs .method-tab"),
 };
+
+const DIFFICULTY_KEY = "durakDifficulty";
+const THROW_IN_CHANCE = { easy: 0.3, medium: 0.7, hard: 0.95 };
+
+let botDifficulty = localStorage.getItem(DIFFICULTY_KEY) || "medium";
+if (!THROW_IN_CHANCE[botDifficulty]) botDifficulty = "medium";
+
+els.difficultyTabs.forEach((tab) => {
+  tab.classList.toggle("active", tab.dataset.difficulty === botDifficulty);
+  tab.addEventListener("click", () => {
+    botDifficulty = tab.dataset.difficulty;
+    localStorage.setItem(DIFFICULTY_KEY, botDifficulty);
+    els.difficultyTabs.forEach((t) => t.classList.toggle("active", t === tab));
+  });
+});
+
+function rankCounts(cards) {
+  const counts = {};
+  cards.forEach((c) => {
+    counts[c.rank] = (counts[c.rank] || 0) + 1;
+  });
+  return counts;
+}
 
 let game = null;
 
@@ -205,6 +241,82 @@ function handlePlayerCardClick(index) {
   }
 }
 
+function computeUnknownPool() {
+  const used = new Set();
+  game.bot.forEach((c) => used.add(cardKey(c)));
+  game.table.forEach((p) => {
+    used.add(cardKey(p.attack));
+    if (p.defend) used.add(cardKey(p.defend));
+  });
+  return fullDeckList().filter((c) => !used.has(cardKey(c)));
+}
+
+function simGreedyDefendCard(hand, atk, trumpSuit) {
+  const candidates = hand.filter((c) => cardBeats(c, atk, trumpSuit));
+  if (!candidates.length) return null;
+  return [...candidates].sort(
+    (a, b) => (a.suit === trumpSuit ? 1 : 0) - (b.suit === trumpSuit ? 1 : 0) || a.rank - b.rank
+  )[0];
+}
+
+function cardCost(card, trumpSuit) {
+  return card.suit === trumpSuit ? 1.6 : 1;
+}
+
+// One randomized playout: the attacker (hypothetical player hand) keeps throwing
+// in matching-rank cards while it can and the bot keeps covering them, until the
+// round ends or the bot runs out of cards and is forced to take everything.
+function simulateDefendCost(candidate, atk, trumpSuit, botHandAfterCandidate, hypPlayerHand) {
+  const bot = [...botHandAfterCandidate];
+  const hypPlayer = [...hypPlayerHand];
+  const tableRanks = new Set([atk.rank, candidate.rank]);
+  let cost = cardCost(candidate, trumpSuit);
+  let tableCount = 1;
+
+  while (bot.length > 0 && tableCount < 6) {
+    const throwable = hypPlayer.filter((c) => tableRanks.has(c.rank));
+    if (!throwable.length || Math.random() > 0.7) break;
+    const atkCard = throwable.sort((a, b) => a.rank - b.rank)[0];
+    hypPlayer.splice(hypPlayer.indexOf(atkCard), 1);
+    tableCount++;
+
+    const defCard = simGreedyDefendCard(bot, atkCard, trumpSuit);
+    if (!defCard) return cost + bot.length + tableCount + 3;
+    bot.splice(bot.indexOf(defCard), 1);
+    tableRanks.add(defCard.rank);
+    cost += cardCost(defCard, trumpSuit);
+  }
+
+  return cost;
+}
+
+// Hard mode: for each legal defending card, deal out many plausible hidden
+// hands consistent with what's actually known (own hand + table), play the
+// round forward on each, and keep the card with the lowest average cost.
+// The bot never looks at the real player hand — only samples random ones.
+function pickHardDefendCard(candidates, atk, trumpSuit) {
+  if (candidates.length === 1) return candidates[0];
+  const SAMPLES = 20;
+  let bestCard = candidates[0];
+  let bestAvg = Infinity;
+
+  for (const candidate of candidates) {
+    const botRest = game.bot.filter((c) => c !== candidate);
+    let total = 0;
+    for (let i = 0; i < SAMPLES; i++) {
+      const pool = shuffle(computeUnknownPool());
+      const hypPlayer = pool.slice(0, game.player.length);
+      total += simulateDefendCost(candidate, atk, trumpSuit, botRest, hypPlayer);
+    }
+    const avg = total / SAMPLES;
+    if (avg < bestAvg) {
+      bestAvg = avg;
+      bestCard = candidate;
+    }
+  }
+  return bestCard;
+}
+
 function botDefendOne(pairIndex) {
   const atk = game.table[pairIndex].attack;
   const candidates = game.bot.filter((c) => cardBeats(c, atk, game.trumpSuit));
@@ -212,10 +324,19 @@ function botDefendOne(pairIndex) {
     botTakesAll();
     return;
   }
-  candidates.sort(
-    (a, b) => (a.suit === game.trumpSuit ? 1 : 0) - (b.suit === game.trumpSuit ? 1 : 0) || a.rank - b.rank
-  );
-  const chosen = candidates[0];
+
+  let chosen;
+  if (botDifficulty === "easy") {
+    chosen = candidates[Math.floor(Math.random() * candidates.length)];
+  } else if (botDifficulty === "hard") {
+    chosen = pickHardDefendCard(candidates, atk, game.trumpSuit);
+  } else {
+    const sorted = [...candidates].sort(
+      (a, b) => (a.suit === game.trumpSuit ? 1 : 0) - (b.suit === game.trumpSuit ? 1 : 0) || a.rank - b.rank
+    );
+    chosen = sorted[0];
+  }
+
   game.bot.splice(game.bot.indexOf(chosen), 1);
   game.table[pairIndex].defend = chosen;
   game.busy = false;
@@ -227,10 +348,18 @@ function botContinueAttackOrFinish() {
   const ranksOnTable = new Set(game.table.flatMap((p) => [p.attack.rank, p.defend.rank]));
   const candidates = game.bot.filter((c) => ranksOnTable.has(c.rank));
   const canAdd = candidates.length > 0 && game.table.length < 6 && game.player.length > 0;
+  const chance = THROW_IN_CHANCE[botDifficulty];
 
-  if (canAdd && Math.random() < 0.75) {
-    candidates.sort((a, b) => a.rank - b.rank);
-    const card = candidates[0];
+  if (canAdd && Math.random() < chance) {
+    let card;
+    if (botDifficulty === "easy") {
+      card = candidates[Math.floor(Math.random() * candidates.length)];
+    } else if (botDifficulty === "hard") {
+      const counts = rankCounts(game.bot);
+      card = [...candidates].sort((a, b) => counts[b.rank] - counts[a.rank] || a.rank - b.rank)[0];
+    } else {
+      card = [...candidates].sort((a, b) => a.rank - b.rank)[0];
+    }
     game.bot.splice(game.bot.indexOf(card), 1);
     game.table.push({ attack: card, defend: null });
     game.busy = false;
@@ -242,10 +371,19 @@ function botContinueAttackOrFinish() {
 }
 
 function botAttack() {
-  const nonTrump = game.bot.filter((c) => c.suit !== game.trumpSuit);
-  const pool = nonTrump.length ? nonTrump : game.bot;
-  const sorted = [...pool].sort((a, b) => a.rank - b.rank);
-  const card = sorted[0];
+  let card;
+  if (botDifficulty === "easy") {
+    card = game.bot[Math.floor(Math.random() * game.bot.length)];
+  } else {
+    const nonTrump = game.bot.filter((c) => c.suit !== game.trumpSuit);
+    const pool = nonTrump.length ? nonTrump : game.bot;
+    if (botDifficulty === "hard") {
+      const counts = rankCounts(pool);
+      card = [...pool].sort((a, b) => counts[b.rank] - counts[a.rank] || a.rank - b.rank)[0];
+    } else {
+      card = [...pool].sort((a, b) => a.rank - b.rank)[0];
+    }
+  }
   game.bot.splice(game.bot.indexOf(card), 1);
   game.table.push({ attack: card, defend: null });
   game.busy = false;

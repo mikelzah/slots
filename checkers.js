@@ -23,7 +23,23 @@ const els = {
   playerCount: document.getElementById("playerCount"),
   botCount: document.getElementById("botCount"),
   newGameBtn: document.getElementById("newGameBtn"),
+  difficultyTabs: document.querySelectorAll("#difficultyTabs .method-tab"),
 };
+
+const DIFFICULTY_KEY = "checkersDifficulty";
+const SEARCH_DEPTH = { medium: 3, hard: 6 };
+
+let checkersDifficulty = localStorage.getItem(DIFFICULTY_KEY) || "medium";
+if (!["easy", "medium", "hard"].includes(checkersDifficulty)) checkersDifficulty = "medium";
+
+els.difficultyTabs.forEach((tab) => {
+  tab.classList.toggle("active", tab.dataset.difficulty === checkersDifficulty);
+  tab.addEventListener("click", () => {
+    checkersDifficulty = tab.dataset.difficulty;
+    localStorage.setItem(DIFFICULTY_KEY, checkersDifficulty);
+    els.difficultyTabs.forEach((t) => t.classList.toggle("active", t === tab));
+  });
+});
 
 let board = null;
 let playerTurn = true;
@@ -109,6 +125,101 @@ function applyMove(b, move) {
   }
   b[tr][tc] = piece;
   return Boolean(move.captured);
+}
+
+function cloneBoard(b) {
+  return b.map((row) => row.map((cell) => (cell ? { owner: cell.owner, king: cell.king } : null)));
+}
+
+function captureSequences(b, r, c) {
+  const { captures } = getMovesForPiece(b, r, c);
+  if (captures.length === 0) return [[]];
+  const sequences = [];
+  for (const move of captures) {
+    const b2 = cloneBoard(b);
+    applyMove(b2, move);
+    const [tr, tc] = move.to;
+    for (const rest of captureSequences(b2, tr, tc)) {
+      sequences.push([move, ...rest]);
+    }
+  }
+  return sequences;
+}
+
+function enumerateFullMoves(b, owner) {
+  const { moves, mustCapture } = getAllMoves(b, owner);
+  if (!mustCapture) return moves.map((m) => [m]);
+  const sequences = [];
+  for (const startMove of moves) {
+    const b2 = cloneBoard(b);
+    applyMove(b2, startMove);
+    const [tr, tc] = startMove.to;
+    for (const rest of captureSequences(b2, tr, tc)) {
+      sequences.push([startMove, ...rest]);
+    }
+  }
+  return sequences;
+}
+
+function applySequence(b, seq) {
+  const b2 = cloneBoard(b);
+  seq.forEach((move) => applyMove(b2, move));
+  return b2;
+}
+
+function evaluateBoard(b) {
+  let score = 0;
+  for (let r = 0; r < SIZE; r++) {
+    for (let c = 0; c < SIZE; c++) {
+      const p = b[r][c];
+      if (!p) continue;
+      let value = p.king ? 3 : 1;
+      if (!p.king) {
+        value += (p.owner === "bot" ? r : SIZE - 1 - r) / 21;
+      }
+      score += p.owner === "bot" ? value : -value;
+    }
+  }
+  return score;
+}
+
+function minimax(b, depth, owner, alpha, beta) {
+  const sequences = enumerateFullMoves(b, owner);
+  if (sequences.length === 0) {
+    return { score: owner === "bot" ? -1000 : 1000, seq: null };
+  }
+  if (depth === 0) {
+    return { score: evaluateBoard(b), seq: null };
+  }
+
+  const nextOwner = owner === "bot" ? "player" : "bot";
+  let bestSeq = sequences[0];
+
+  if (owner === "bot") {
+    let best = -Infinity;
+    for (const seq of sequences) {
+      const { score } = minimax(applySequence(b, seq), depth - 1, nextOwner, alpha, beta);
+      if (score > best) {
+        best = score;
+        bestSeq = seq;
+      }
+      alpha = Math.max(alpha, best);
+      if (beta <= alpha) break;
+    }
+    return { score: best, seq: bestSeq };
+  }
+
+  let best = Infinity;
+  for (const seq of sequences) {
+    const { score } = minimax(applySequence(b, seq), depth - 1, nextOwner, alpha, beta);
+    if (score < best) {
+      best = score;
+      bestSeq = seq;
+    }
+    beta = Math.min(beta, best);
+    if (beta <= alpha) break;
+  }
+  return { score: best, seq: bestSeq };
 }
 
 function countPieces(owner) {
@@ -247,36 +358,30 @@ function endPlayerTurn() {
   setTimeout(runBotTurn, 600);
 }
 
-function runBotTurn() {
-  const { moves } = getAllMoves(board, "bot");
-  const move = moves[Math.floor(Math.random() * moves.length)];
-  const wasCapture = applyMove(board, move);
-  updateCounts();
-  render();
-
-  if (wasCapture) {
-    const [tr, tc] = move.to;
-    const cont = getMovesForPiece(board, tr, tc).captures;
-    if (cont.length) {
-      setStatus("Бот продолжает бить...");
-      setTimeout(() => botContinueChain(tr, tc), 550);
-      return;
-    }
+function chooseBotSequence() {
+  const sequences = enumerateFullMoves(board, "bot");
+  if (checkersDifficulty === "easy") {
+    return sequences[Math.floor(Math.random() * sequences.length)];
   }
-  finishBotTurn();
+  const depth = SEARCH_DEPTH[checkersDifficulty] || SEARCH_DEPTH.medium;
+  const { seq } = minimax(board, depth, "bot", -Infinity, Infinity);
+  return seq || sequences[Math.floor(Math.random() * sequences.length)];
 }
 
-function botContinueChain(r, c) {
-  const caps = getMovesForPiece(board, r, c).captures;
-  const move = caps[Math.floor(Math.random() * caps.length)];
+function runBotTurn() {
+  const seq = chooseBotSequence();
+  animateBotSequence(seq, 0);
+}
+
+function animateBotSequence(seq, i) {
+  const move = seq[i];
   applyMove(board, move);
   updateCounts();
   render();
 
-  const [tr, tc] = move.to;
-  const cont = getMovesForPiece(board, tr, tc).captures;
-  if (cont.length) {
-    setTimeout(() => botContinueChain(tr, tc), 550);
+  if (i < seq.length - 1) {
+    setStatus("Бот продолжает бить...");
+    setTimeout(() => animateBotSequence(seq, i + 1), 550);
   } else {
     finishBotTurn();
   }
