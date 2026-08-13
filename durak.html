@@ -44,6 +44,7 @@
   </aside>
 
   <main class="content">
+    <div class="stack">
     <div class="card durak-card" id="game">
       <div class="card-header">
         <span class="card-icon">🃏</span>
@@ -89,6 +90,26 @@
       </div>
 
       <div class="player-hand" id="playerHand"></div>
+    </div>
+
+    <div class="card stats-card">
+      <div class="card-header">
+        <span class="card-icon">📊</span>
+        <h1>Статистика партий</h1>
+        <button id="statsResetBtn" class="new-game-btn">Сбросить</button>
+      </div>
+      <div class="stats-table">
+        <div class="stats-row stats-header">
+          <span class="stats-level">Сложность</span>
+          <span class="stats-cell">Партий</span>
+          <span class="stats-cell">Побед</span>
+          <span class="stats-cell">Поражений</span>
+          <span class="stats-cell">Ничьих</span>
+          <span class="stats-cell">% побед</span>
+        </div>
+        <div id="statsPanel"></div>
+      </div>
+    </div>
     </div>
   </main>
 </div>
@@ -160,6 +181,7 @@
   </div>
 </div>
 
+<script src="stats.js"></script>
 <script src="durak.js"></script>
 <script src="paywall.js"></script>
 </body>

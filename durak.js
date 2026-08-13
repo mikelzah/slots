@@ -451,23 +451,24 @@ function drawPhase(order) {
 function finishIfGameOver() {
   if (game.deck.length > 0) return false;
   if (game.player.length === 0 && game.bot.length === 0) {
-    endGame("Ничья! Карты закончились одновременно.");
+    endGame("Ничья! Карты закончились одновременно.", "draw");
     return true;
   }
   if (game.player.length === 0) {
-    endGame("Вы победили! Бот остался Дураком. 🎉");
+    endGame("Вы победили! Бот остался Дураком. 🎉", "win");
     return true;
   }
   if (game.bot.length === 0) {
-    endGame("Бот победил. Вы — Дурак 🃏");
+    endGame("Бот победил. Вы — Дурак 🃏", "loss");
     return true;
   }
   return false;
 }
 
-function endGame(text) {
+function endGame(text, outcome) {
   game.over = true;
   setStatus(text);
+  if (outcome) recordGameResult("durak", botDifficulty, outcome);
   render();
 }
 
@@ -545,4 +546,5 @@ els.newGameBtn.addEventListener("click", () => {
   initGame();
 });
 
+initStatsPanel("durak");
 initGame();

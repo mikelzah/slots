@@ -726,6 +726,68 @@ a.sidebar-item {
   text-align: center;
 }
 
+/* Game stats card */
+
+.stats-card {
+  width: 100%;
+  max-width: 720px;
+}
+.stats-card .card-header {
+  position: relative;
+}
+
+.stats-table {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.stats-row {
+  display: grid;
+  grid-template-columns: 1.2fr repeat(5, 1fr);
+  align-items: center;
+  padding: 10px 14px;
+  font-size: 13px;
+  border-bottom: 1px solid var(--border);
+}
+.stats-row:last-child { border-bottom: none; }
+
+.stats-row.stats-header {
+  background: #f7f9fb;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.stats-level {
+  font-weight: 700;
+}
+
+.stats-cell {
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.stats-row:not(.stats-header) .stats-win { color: var(--green); font-weight: 700; }
+.stats-row:not(.stats-header) .stats-loss { color: var(--red); font-weight: 700; }
+.stats-row:not(.stats-header) .stats-draw { color: var(--text-muted); }
+.stats-row:not(.stats-header) .stats-rate { font-weight: 700; }
+
+@media (max-width: 700px) {
+  .stats-row { grid-template-columns: 1fr; row-gap: 4px; text-align: left; }
+  .stats-cell { text-align: left; }
+  .stats-row.stats-header { display: none; }
+  .stats-row:not(.stats-header) .stats-cell::before {
+    content: attr(data-label) ": ";
+    color: var(--text-muted);
+    font-weight: 400;
+  }
+}
+
 .saas-payment .saas-title {
   margin-bottom: 16px;
 }

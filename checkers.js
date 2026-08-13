@@ -343,12 +343,12 @@ function onSquareClick(r, c) {
 
 function endPlayerTurn() {
   if (countPieces("bot") === 0) {
-    endGame("Вы победили! У бота не осталось шашек. 🎉");
+    endGame("Вы победили! У бота не осталось шашек. 🎉", "win");
     return;
   }
   const botMoves = getAllMoves(board, "bot");
   if (botMoves.moves.length === 0) {
-    endGame("Вы победили! У бота нет ходов. 🎉");
+    endGame("Вы победили! У бота нет ходов. 🎉", "win");
     return;
   }
   playerTurn = false;
@@ -389,12 +389,12 @@ function animateBotSequence(seq, i) {
 
 function finishBotTurn() {
   if (countPieces("player") === 0) {
-    endGame("Бот победил. Попробуйте ещё раз.");
+    endGame("Бот победил. Попробуйте ещё раз.", "loss");
     return;
   }
   const playerMoves = getAllMoves(board, "player");
   if (playerMoves.moves.length === 0) {
-    endGame("Бот победил — у вас нет ходов.");
+    endGame("Бот победил — у вас нет ходов.", "loss");
     return;
   }
   playerTurn = true;
@@ -403,13 +403,15 @@ function finishBotTurn() {
   setStatus("Ваш ход — выберите шашку.");
 }
 
-function endGame(text) {
+function endGame(text, outcome) {
   gameOver = true;
   busy = false;
   setStatus(text);
+  if (outcome) recordGameResult("checkers", checkersDifficulty, outcome);
   render();
 }
 
 els.newGameBtn.addEventListener("click", startGame);
 
+initStatsPanel("checkers");
 startGame();
