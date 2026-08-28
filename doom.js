@@ -32,16 +32,23 @@ const ENEMY_SPAWNS = [
 ];
 
 const DIFFICULTY = {
-  easy: { count: 4, hp: 45, speed: 1.0, dmg: 5, fireInterval: 1500, aggroRange: 6.5, label: "Лёгкий" },
-  medium: { count: 6, hp: 60, speed: 1.4, dmg: 8, fireInterval: 1150, aggroRange: 8, label: "Средний" },
-  hard: { count: 9, hp: 75, speed: 1.9, dmg: 12, fireInterval: 850, aggroRange: 9.5, label: "Сложный" },
+  easy: { waves: [2, 3, 3], hp: 45, speed: 1.0, dmg: 5, fireInterval: 1500, aggroRange: 6.5, label: "Лёгкий" },
+  medium: { waves: [3, 4, 5], hp: 60, speed: 1.4, dmg: 8, fireInterval: 1150, aggroRange: 8, label: "Средний" },
+  hard: { waves: [4, 5, 6, 6], hp: 75, speed: 1.9, dmg: 12, fireInterval: 850, aggroRange: 9.5, label: "Сложный" },
 };
+
+function totalEnemiesFor(cfg) {
+  return cfg.waves.reduce((sum, n) => sum + n, 0);
+}
 
 const FOV = Math.PI / 3;
 const PLAYER_SPEED = 3.1;
 const TURN_SPEED = 2.6;
 const MOUSE_SENS = 0.0022;
 const FIRE_COOLDOWN = 260;
+const START_GRACE_MS = 3000;
+const WAVE_GRACE_MS = 1500;
+const WAVE_INTERMISSION_MS = 3000;
 
 const canvas = document.getElementById("doomCanvas");
 const ctx = canvas.getContext("2d");
@@ -60,6 +67,7 @@ const els = {
   difficultyTabs: document.querySelectorAll("#difficultyTabs .method-tab"),
   healthValue: document.getElementById("healthValue"),
   killValue: document.getElementById("killValue"),
+  waveValue: document.getElementById("waveValue"),
   healthBarFill: document.getElementById("healthBarFill"),
 };
 
@@ -67,7 +75,10 @@ let difficulty = "medium";
 let phase = "idle"; // idle | playing | win | lose
 let player = { x: 1.5, y: 1.5, angle: 0.7, health: 100 };
 let enemies = [];
-let kills = 0;
+let waveIndex = 0;
+let totalKills = 0;
+let graceUntil = 0;
+let intermissionUntil = 0;
 let keys = {};
 let zBuffer = new Array(W).fill(99);
 let lastShotTime = 0;
@@ -254,17 +265,39 @@ function drawMinimap() {
   mctx.restore();
 }
 
+function drawBanner() {
+  const now = performance.now();
+  let text = null;
+  if (now < graceUntil) {
+    text = `Приготовьтесь! ${Math.max(0, (graceUntil - now) / 1000).toFixed(1)}с`;
+  } else if (intermissionUntil) {
+    text = `Волна ${waveIndex + 2} через ${Math.max(0, (intermissionUntil - now) / 1000).toFixed(1)}с`;
+  }
+  if (!text) return;
+  ctx.save();
+  ctx.font = "bold 20px Arial, sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillStyle = "rgba(0,0,0,0.55)";
+  ctx.fillRect(0, 36, W, 40);
+  ctx.fillStyle = "#ffe678";
+  ctx.fillText(text, W / 2, 62);
+  ctx.restore();
+}
+
 function render() {
   drawWallsAndFloor();
   drawSprites();
   drawWeapon();
   drawDamageFlash();
+  drawBanner();
   drawMinimap();
 }
 
 function updateHud() {
+  const cfg = DIFFICULTY[difficulty];
   els.healthValue.textContent = Math.max(0, Math.round(player.health));
-  els.killValue.textContent = `${kills}/${enemies.length}`;
+  els.killValue.textContent = `${totalKills}/${totalEnemiesFor(cfg)}`;
+  els.waveValue.textContent = `${Math.min(waveIndex + 1, cfg.waves.length)}/${cfg.waves.length}`;
   const ratio = Math.max(0, player.health) / 100;
   els.healthBarFill.style.width = `${ratio * 100}%`;
   els.healthBarFill.classList.toggle("low", ratio <= 0.3);
@@ -316,8 +349,7 @@ function shoot() {
     best.hp -= 22 + Math.random() * 18;
     if (best.hp <= 0) {
       best.alive = false;
-      kills++;
-      if (kills >= enemies.length) winGame();
+      totalKills++;
     }
     updateHud();
   }
@@ -344,13 +376,13 @@ function updateEnemies(dt) {
     const dist = Math.hypot(dx, dy);
     if (dist < cfg.aggroRange && dist > 1.0) {
       const nx = dx / dist, ny = dy / dist;
-      attemptMove(e, nx * cfg.speed * dt, ny * cfg.speed * dt, 0.3);
+      attemptMove(e, nx * e.speed * dt, ny * e.speed * dt, 0.3);
     }
     if (dist < 7.5 && hasLineOfSight(e.x, e.y, player.x, player.y)) {
       e.cooldown -= dt * 1000;
       if (e.cooldown <= 0) {
-        e.cooldown = cfg.fireInterval + Math.random() * 400;
-        const dmg = cfg.dmg * (0.7 + Math.random() * 0.6);
+        e.cooldown = e.fireInterval + Math.random() * 400;
+        const dmg = e.dmg * (0.7 + Math.random() * 0.6);
         player.health = Math.max(0, player.health - dmg);
         damageFlash = 260;
         if (player.health <= 0) loseGame();
@@ -359,9 +391,30 @@ function updateEnemies(dt) {
   });
 }
 
+function checkWaveProgress(now) {
+  if (phase !== "playing") return;
+  const cfg = DIFFICULTY[difficulty];
+  const waveCleared = enemies.length > 0 && enemies.every((e) => !e.alive);
+  if (!waveCleared) return;
+
+  if (waveIndex + 1 >= cfg.waves.length) {
+    winGame();
+    return;
+  }
+  if (!intermissionUntil) {
+    intermissionUntil = now + WAVE_INTERMISSION_MS;
+  } else if (now >= intermissionUntil) {
+    waveIndex++;
+    spawnWave(waveIndex);
+    intermissionUntil = 0;
+  }
+}
+
 function update(dt) {
+  const now = performance.now();
   updatePlayer(dt);
-  updateEnemies(dt);
+  if (now >= graceUntil) updateEnemies(dt);
+  checkWaveProgress(now);
   if (muzzleFlash > 0) muzzleFlash = Math.max(0, muzzleFlash - dt * 1000 * 3);
   if (damageFlash > 0) damageFlash = Math.max(0, damageFlash - dt * 1000);
   updateHud();
@@ -399,27 +452,47 @@ function loseGame() {
   phase = "lose";
   if (rafId) cancelAnimationFrame(rafId);
   if (document.pointerLockElement === canvas) document.exitPointerLock();
-  showOverlay("Вы погибли", `Убито демонов: ${kills} из ${enemies.length}.`, "Попробовать снова");
+  const cfg = DIFFICULTY[difficulty];
+  showOverlay("Вы погибли", `Убито демонов: ${totalKills} из ${totalEnemiesFor(cfg)}.`, "Попробовать снова");
   recordGameResult("doom", difficulty, "loss");
 }
 
-function startGame() {
+function pickSpawns(count, idx) {
+  const offset = (idx * 3) % ENEMY_SPAWNS.length;
+  const rotated = ENEMY_SPAWNS.slice(offset).concat(ENEMY_SPAWNS.slice(0, offset));
+  return rotated.slice(0, count);
+}
+
+function spawnWave(idx) {
   const cfg = DIFFICULTY[difficulty];
-  player = { x: 1.5, y: 1.5, angle: 0.7, health: 100 };
-  enemies = ENEMY_SPAWNS.slice(0, cfg.count).map((spawn) => ({
+  const count = cfg.waves[idx];
+  const scale = 1 + idx * 0.15;
+  const hp = cfg.hp * scale;
+  enemies = pickSpawns(count, idx).map((spawn) => ({
     x: spawn.x,
     y: spawn.y,
-    hp: cfg.hp,
-    maxHp: cfg.hp,
+    hp,
+    maxHp: hp,
+    speed: cfg.speed * (1 + idx * 0.08),
+    dmg: cfg.dmg * (1 + idx * 0.1),
+    fireInterval: cfg.fireInterval,
     alive: true,
     cooldown: Math.random() * cfg.fireInterval,
   }));
-  kills = 0;
+  graceUntil = performance.now() + (idx === 0 ? START_GRACE_MS : WAVE_GRACE_MS);
+}
+
+function startGame() {
+  player = { x: 1.5, y: 1.5, angle: 0.7, health: 100 };
+  waveIndex = 0;
+  totalKills = 0;
+  intermissionUntil = 0;
   keys = {};
   muzzleFlash = 0;
   damageFlash = 0;
   phase = "playing";
   lastTs = 0;
+  spawnWave(0);
   hideOverlay();
   updateHud();
   if (rafId) cancelAnimationFrame(rafId);
@@ -433,7 +506,7 @@ els.difficultyTabs.forEach((tab) => {
     els.difficultyTabs.forEach((t) => t.classList.toggle("active", t === tab));
     if (phase !== "playing") {
       const cfg = DIFFICULTY[difficulty];
-      showOverlay("DOOM", `Уничтожьте всех демонов (${cfg.count}), чтобы победить.`, "Начать игру");
+      showOverlay("DOOM", `${cfg.waves.length} волны демонов, всего ${totalEnemiesFor(cfg)}. После старта у вас есть пара секунд, чтобы осмотреться.`, "Начать игру");
     }
   });
 });
@@ -441,8 +514,24 @@ els.difficultyTabs.forEach((tab) => {
 els.overlayBtn.addEventListener("click", startGame);
 els.newGameBtn.addEventListener("click", startGame);
 
+const KEY_CODE_MAP = {
+  KeyW: "w",
+  KeyA: "a",
+  KeyS: "s",
+  KeyD: "d",
+  ArrowLeft: "arrowleft",
+  ArrowRight: "arrowright",
+  Space: " ",
+};
+
+function resolveKey(ev) {
+  // Use the physical key code (layout-independent) so WASD keeps working
+  // even when the OS keyboard layout is non-Latin (e.g. Russian ЙЦУКЕН).
+  return KEY_CODE_MAP[ev.code] || ev.key.toLowerCase();
+}
+
 window.addEventListener("keydown", (ev) => {
-  const key = ev.key.toLowerCase();
+  const key = resolveKey(ev);
   if (["w", "a", "s", "d", "arrowleft", "arrowright", " "].includes(key) && phase === "playing") {
     ev.preventDefault();
   }
@@ -450,7 +539,7 @@ window.addEventListener("keydown", (ev) => {
   if (key === " ") shoot();
 });
 window.addEventListener("keyup", (ev) => {
-  keys[ev.key.toLowerCase()] = false;
+  keys[resolveKey(ev)] = false;
 });
 
 canvas.addEventListener("mousedown", () => {
@@ -473,6 +562,6 @@ document.addEventListener("visibilitychange", () => {
   }
 });
 
-showOverlay("DOOM", `Уничтожьте всех демонов (${DIFFICULTY[difficulty].count}), чтобы победить.`, "Начать игру");
+showOverlay("DOOM", `${DIFFICULTY[difficulty].waves.length} волны демонов, всего ${totalEnemiesFor(DIFFICULTY[difficulty])}. После старта у вас есть пара секунд, чтобы осмотреться.`, "Начать игру");
 updateHud();
 initStatsPanel("doom");
