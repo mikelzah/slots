@@ -3,9 +3,10 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>АМС-КОМПЛЕКС · Слот-Симулятор</title>
+<title>АМС-КОМПЛЕКС · Doom</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%231565c0%22/><text x=%2250%22 y=%2268%22 font-size=%2260%22 fill=%22white%22 text-anchor=%22middle%22 font-family=%22Arial%22>A</text></svg>" />
 <link rel="stylesheet" href="style.css" />
+<link rel="stylesheet" href="doom.css" />
 </head>
 <body>
 <header class="topbar">
@@ -13,10 +14,10 @@
     <div class="logo">A</div>
     <span class="brand">АМС-КОМПЛЕКС</span>
     <nav class="topnav">
-      <a href="#" class="active">Слот-Симулятор</a>
+      <a href="index.html">Слот-Симулятор</a>
       <a href="durak.html">Дурак Онлайн</a>
       <a href="checkers.html">Шашки</a>
-      <a href="doom.html">Doom</a>
+      <a href="#" class="active">Doom</a>
     </nav>
   </div>
   <div class="topbar-right">
@@ -34,113 +35,85 @@
     <div class="sidebar-item locked-feature" data-feature="Закупки"><span class="dot dot-green"></span>Закупки<span class="lock-icon">🔒</span></div>
     <div class="sidebar-item locked-feature" data-feature="Справочники"><span class="dot dot-orange"></span>Справочники<span class="lock-icon">🔒</span></div>
     <div class="sidebar-item locked-feature" data-feature="Уведомления"><span class="dot dot-blue"></span>Уведомления<span class="lock-icon">🔒</span></div>
-    <div class="sidebar-item active"><span class="dot dot-cyan"></span>Слот-Симулятор</div>
+    <a href="index.html" class="sidebar-item">
+      <span class="dot dot-cyan"></span>Слот-Симулятор
+    </a>
     <a href="durak.html" class="sidebar-item">
       <span class="dot dot-red"></span>Дурак Онлайн
     </a>
     <a href="checkers.html" class="sidebar-item">
       <span class="dot dot-orange"></span>Шашки
     </a>
-    <a href="doom.html" class="sidebar-item">
-      <span class="dot dot-purple"></span>Doom
-    </a>
+    <div class="sidebar-item active"><span class="dot dot-purple"></span>Doom</div>
   </aside>
 
   <main class="content">
     <div class="stack">
-      <div class="card slot-card">
-        <div class="card-header">
-          <span class="card-icon">🎰</span>
-          <h1>Слот-Симулятор</h1>
+    <div class="card doom-card">
+      <div class="card-header">
+        <span class="card-icon">🔫</span>
+        <h1>Doom</h1>
+        <button id="newGameBtn" class="new-game-btn">Новая игра</button>
+      </div>
+      <p class="subtitle">Аркадный шутер от первого лица в стиле классического Doom. Зачистите уровень от демонов.</p>
+
+      <div class="difficulty-select">
+        <span class="difficulty-label">Сложность:</span>
+        <div class="method-tabs" id="difficultyTabs">
+          <button type="button" class="method-tab" data-difficulty="easy">Лёгкий</button>
+          <button type="button" class="method-tab active" data-difficulty="medium">Средний</button>
+          <button type="button" class="method-tab" data-difficulty="hard">Сложный</button>
         </div>
-        <p class="subtitle">Классический слот. 5 барабанов, линия слева направо, реальные шансы на выигрыш.</p>
-
-        <div class="balance-row">
-          <div class="balance">
-            <span class="balance-label">Баланс</span>
-            <span><span id="balance" class="balance-value">1 000</span> <span class="currency">₽</span></span>
-          </div>
-          <div class="bet">
-            <span class="balance-label">Ставка</span>
-            <div class="bet-controls">
-              <button id="betMinus" class="bet-btn">−</button>
-              <span id="bet" class="bet-value">50</span>
-              <button id="betPlus" class="bet-btn">+</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="slot-body">
-          <div class="reels-panel">
-            <div class="reels" id="reels">
-              <div class="reel"><div class="reel-strip" id="strip0"></div></div>
-              <div class="reel"><div class="reel-strip" id="strip1"></div></div>
-              <div class="reel"><div class="reel-strip" id="strip2"></div></div>
-              <div class="reel"><div class="reel-strip" id="strip3"></div></div>
-              <div class="reel"><div class="reel-strip" id="strip4"></div></div>
-            </div>
-
-            <div class="message" id="message">Нажмите «Крутить», чтобы начать!</div>
-
-            <button id="spinBtn" class="spin-btn">Крутить</button>
-          </div>
-
-          <div class="paytable" id="paytable">
-            <div class="paytable-title">Таблица выплат</div>
-            <div class="paytable-hint">Совпадения слева направо, ставка ₽<span id="paytableBet">50</span></div>
-            <div class="paytable-rows" id="paytableRows"></div>
-          </div>
-        </div>
-
-        <div class="footnote">Симулятор создан в демонстрационных целях и не выражает реальных шансов на выигрыш.</div>
       </div>
 
-      <div class="card withdraw-card" id="withdrawCard">
-        <div class="withdraw-form" id="withdrawForm">
-          <div class="card-header">
-            <span class="card-icon">💳</span>
-            <h1>Вывод средств</h1>
-          </div>
-          <div class="withdraw-amount-row">
-            <span class="balance-label">Доступно к выводу</span>
-            <span class="withdraw-amount"><span id="withdrawAmount">0</span> <span class="currency">₽</span></span>
-          </div>
-
-          <div class="method-tabs">
-            <button type="button" class="method-tab active" data-method="card">Банковская карта</button>
-            <button type="button" class="method-tab" data-method="sbp">СБП</button>
-          </div>
-
-          <div class="method-panel" id="panelCard">
-            <label class="field-label" for="cardNumber">Номер карты</label>
-            <div class="card-input-wrap">
-              <span class="card-brand" id="cardBrand"></span>
-              <input type="text" id="cardNumber" class="field-input" placeholder="0000 0000 0000 0000" inputmode="numeric" maxlength="19" />
-            </div>
-          </div>
-
-          <div class="method-panel hidden" id="panelSbp">
-            <label class="field-label" for="phoneNumber">Номер телефона</label>
-            <input type="text" id="phoneNumber" class="field-input" placeholder="+7 900 000-00-00" inputmode="tel" maxlength="18" />
-          </div>
-
-          <div class="field-error" id="withdrawError"></div>
-
-          <button id="withdrawBtn" class="withdraw-btn">Вывести</button>
+      <div class="doom-meta">
+        <div class="meta-chip">
+          <span class="balance-label">Здоровье</span>
+          <span id="healthValue" class="meta-value">100</span>
         </div>
-
-        <div class="withdraw-success hidden" id="withdrawSuccess">
-          <div class="success-icon">✓</div>
-          <div class="success-title">Выплата отправлена</div>
-          <div class="success-amount" id="successAmount">0 ₽</div>
-          <div class="success-detail" id="successDetail">Зачисление в течение 15 минут</div>
-          <div class="success-meta">
-            <div><span>ID транзакции</span><span id="successId">—</span></div>
-            <div><span>Время</span><span id="successTime">—</span></div>
-          </div>
-          <button id="withdrawDone" class="withdraw-btn secondary">Готово</button>
+        <div class="meta-chip">
+          <span class="balance-label">Убито демонов</span>
+          <span id="killValue" class="meta-value">0/6</span>
         </div>
       </div>
+
+      <div class="doom-viewport" id="doomViewport">
+        <canvas id="doomCanvas" width="680" height="400"></canvas>
+        <canvas id="minimapCanvas" width="110" height="110"></canvas>
+        <div class="doom-hud">
+          <div class="health-bar"><div class="health-bar-fill" id="healthBarFill"></div></div>
+          <div class="crosshair">+</div>
+        </div>
+        <div class="doom-overlay" id="doomOverlay">
+          <div class="doom-overlay-inner">
+            <div class="doom-overlay-title" id="overlayTitle">DOOM</div>
+            <div class="doom-overlay-text" id="overlayText">Уничтожьте всех демонов на уровне, чтобы победить.</div>
+            <button id="overlayBtn" class="withdraw-btn">Начать игру</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="doom-controls-hint">WASD — движение · мышь / ←→ — поворот · ЛКМ / Пробел — выстрел</div>
+    </div>
+
+    <div class="card stats-card">
+      <div class="card-header">
+        <span class="card-icon">📊</span>
+        <h1>Статистика партий</h1>
+        <button id="statsResetBtn" class="new-game-btn">Сбросить</button>
+      </div>
+      <div class="stats-table">
+        <div class="stats-row stats-header">
+          <span class="stats-level">Сложность</span>
+          <span class="stats-cell">Партий</span>
+          <span class="stats-cell">Побед</span>
+          <span class="stats-cell">Поражений</span>
+          <span class="stats-cell">Ничьих</span>
+          <span class="stats-cell">% побед</span>
+        </div>
+        <div id="statsPanel"></div>
+      </div>
+    </div>
     </div>
   </main>
 </div>
@@ -212,7 +185,8 @@
   </div>
 </div>
 
-<script src="script.js"></script>
+<script src="stats.js"></script>
+<script src="doom.js"></script>
 <script src="paywall.js"></script>
 </body>
 </html>
