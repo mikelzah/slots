@@ -1,35 +1,78 @@
 /* Doom-style raycasting FPS mini-game */
 
+// 3x3 grid of rooms connected by single-tile doorways, so enemies in other
+// rooms are blocked by walls instead of all being in sight/range at once.
 const MAP_ROWS = [
-  "1111111111111111",
-  "1000000000000001",
-  "1011000000001101",
-  "1010000000000101",
-  "1010011001100101",
-  "1000011001100001",
-  "1000000000000001",
-  "1001100000011001",
-  "1001100000011001",
-  "1000000000000001",
-  "1000011001100001",
-  "1010011001100101",
-  "1010000000000101",
-  "1011000000001101",
-  "1000000000000001",
-  "1111111111111111",
+  "1111111111111111111111111",
+  "1000000011100000100000001",
+  "1000000011100000100000001",
+  "1000000000000000100000001",
+  "1000000010000000100000001",
+  "1000000010000000000000001",
+  "1000000010000000100000001",
+  "1111011111110111111101111",
+  "1000000010000000100001101",
+  "1000000010000000100001101",
+  "1000000000000000100000001",
+  "1000000010000000100000001",
+  "1000000010000000000000001",
+  "1000000010000000100000001",
+  "1110111111101111111011111",
+  "1110000010000110100000001",
+  "1110000010000110100000001",
+  "1000000000000000100000001",
+  "1000000010000000100000001",
+  "1000000010000000000000001",
+  "1000000010000000100000001",
+  "1111111111111111111111111",
 ];
 const MAP = MAP_ROWS.map((row) => row.split("").map(Number));
 const MAP_W = MAP[0].length;
 const MAP_H = MAP.length;
 
+// Ordered farthest-from-spawn first, so small early waves spawn far away
+// from the player instead of dropping most enemies right next to them.
 const ENEMY_SPAWNS = [
-  { x: 8.5, y: 1.5 }, { x: 12.5, y: 1.5 },
-  { x: 3.5, y: 3.5 }, { x: 12.5, y: 3.5 },
-  { x: 2.5, y: 6.5 }, { x: 13.5, y: 6.5 },
-  { x: 2.5, y: 9.5 }, { x: 13.5, y: 9.5 },
-  { x: 3.5, y: 12.5 }, { x: 12.5, y: 12.5 },
-  { x: 8.5, y: 14.5 },
+  { x: 21.5, y: 19.5 },
+  { x: 19.5, y: 16.5 },
+  { x: 21.5, y: 12.5 },
+  { x: 21.5, y: 5.5 },
+  { x: 10.5, y: 19.5 },
+  { x: 19.5, y: 9.5 },
+  { x: 12.5, y: 17.5 },
+  { x: 5.5, y: 19.5 },
+  { x: 19.5, y: 2.5 },
+  { x: 3.5, y: 16.5 },
+  { x: 12.5, y: 10.5 },
+  { x: 5.5, y: 12.5 },
+  { x: 12.5, y: 2.5 },
+  { x: 10.5, y: 5.5 },
+  { x: 3.5, y: 9.5 },
+  { x: 6.5, y: 5.5 },
 ];
+
+const POWERUP_SPAWNS = [
+  { x: 2.5, y: 5.5 },
+  { x: 14.5, y: 2.5 },
+  { x: 18.5, y: 5.5 },
+  { x: 6.5, y: 10.5 },
+  { x: 10.5, y: 12.5 },
+  { x: 18.5, y: 12.5 },
+  { x: 6.5, y: 16.5 },
+  { x: 14.5, y: 19.5 },
+  { x: 18.5, y: 19.5 },
+];
+
+const POWERUP_TYPES = {
+  heal25: { label: "Аптечка +25%", color: "#3aa856", icon: "+25" },
+  heal50: { label: "Аптечка +50%", color: "#2ecc71", icon: "+50" },
+  damage: { label: "Усиленные пули", color: "#ffb020", icon: "⚡" },
+  invis: { label: "Невидимость", color: "#7b4fe0", icon: "◐" },
+};
+const POWERUP_TYPE_KEYS = Object.keys(POWERUP_TYPES);
+const PICKUP_RADIUS = 0.55;
+const BUFF_DURATION_MS = 5000;
+const DAMAGE_BOOST_MULT = 1.8;
 
 const DIFFICULTY = {
   easy: { waves: [2, 3, 3], hp: 45, speed: 1.0, dmg: 5, fireInterval: 1500, aggroRange: 6.5, label: "Лёгкий" },
@@ -73,12 +116,15 @@ const els = {
 
 let difficulty = "medium";
 let phase = "idle"; // idle | playing | win | lose
-let player = { x: 1.5, y: 1.5, angle: 0.7, health: 100 };
+let player = { x: 2.5, y: 2.5, angle: 0.6, health: 100 };
 let enemies = [];
+let pickups = [];
 let waveIndex = 0;
 let totalKills = 0;
 let graceUntil = 0;
 let intermissionUntil = 0;
+let damageBoostUntil = 0;
+let invisibleUntil = 0;
 let keys = {};
 let zBuffer = new Array(W).fill(99);
 let lastShotTime = 0;
@@ -141,7 +187,7 @@ function castRay(px, py, angle) {
   else { stepY = 1; sideDistY = (mapY + 1 - py) * deltaDistY; }
 
   let side = 0;
-  for (let i = 0; i < 64; i++) {
+  for (let i = 0; i < 128; i++) {
     if (sideDistX < sideDistY) { sideDistX += deltaDistX; mapX += stepX; side = 0; }
     else { sideDistY += deltaDistY; mapY += stepY; side = 1; }
     if (mapX < 0 || mapY < 0 || mapX >= MAP_W || mapY >= MAP_H) {
@@ -152,7 +198,7 @@ function castRay(px, py, angle) {
       return { dist: Math.max(dist, 0.0001), side };
     }
   }
-  return { dist: 20, side };
+  return { dist: 40, side };
 }
 
 function drawWallsAndFloor() {
@@ -235,25 +281,33 @@ function drawDamageFlash() {
 
 function drawMinimap() {
   const size = minimap.width;
-  const cell = size / MAP_W;
+  const cellW = size / MAP_W;
+  const cellH = size / MAP_H;
   mctx.clearRect(0, 0, size, size);
   mctx.fillStyle = "rgba(10,12,16,0.78)";
   mctx.fillRect(0, 0, size, size);
   mctx.fillStyle = "#5a6472";
   for (let y = 0; y < MAP_H; y++) {
     for (let x = 0; x < MAP_W; x++) {
-      if (MAP[y][x] === 1) mctx.fillRect(x * cell, y * cell, cell, cell);
+      if (MAP[y][x] === 1) mctx.fillRect(x * cellW, y * cellH, cellW, cellH);
     }
   }
+  pickups.forEach((p) => {
+    if (p.collected) return;
+    mctx.fillStyle = POWERUP_TYPES[p.type].color;
+    mctx.beginPath();
+    mctx.arc(p.x * cellW, p.y * cellH, 1.8, 0, Math.PI * 2);
+    mctx.fill();
+  });
   enemies.forEach((e) => {
     if (!e.alive) return;
     mctx.fillStyle = "#e2445c";
     mctx.beginPath();
-    mctx.arc(e.x * cell, e.y * cell, 2.6, 0, Math.PI * 2);
+    mctx.arc(e.x * cellW, e.y * cellH, 2.2, 0, Math.PI * 2);
     mctx.fill();
   });
   mctx.save();
-  mctx.translate(player.x * cell, player.y * cell);
+  mctx.translate(player.x * cellW, player.y * cellH);
   mctx.rotate(player.angle);
   mctx.fillStyle = "#1a73c7";
   mctx.beginPath();
@@ -263,6 +317,66 @@ function drawMinimap() {
   mctx.closePath();
   mctx.fill();
   mctx.restore();
+}
+
+function drawPickups() {
+  const visible = pickups
+    .filter((p) => !p.collected)
+    .map((p) => {
+      const dx = p.x - player.x, dy = p.y - player.y;
+      const dist = Math.hypot(dx, dy);
+      const rel = normalizeAngle(Math.atan2(dy, dx) - player.angle);
+      return { p, dist, rel };
+    })
+    .filter((s) => Math.abs(s.rel) < FOV / 2 + 0.35 && s.dist > 0.3)
+    .sort((a, b) => b.dist - a.dist);
+
+  for (const s of visible) {
+    const screenX = (0.5 + s.rel / FOV) * W;
+    const size = Math.min(H * 0.5, H / s.dist * 0.45);
+    const col = Math.floor(screenX);
+    if (col < 0 || col >= W) continue;
+    if (zBuffer[col] < s.dist - 0.3) continue;
+
+    const type = POWERUP_TYPES[s.p.type];
+    const cx = screenX, cy = H / 2 + size * 0.4;
+    const fog = Math.max(0.35, 1 - s.dist / 11);
+    const bob = Math.sin(performance.now() / 260 + s.p.x * 3) * size * 0.08;
+    ctx.save();
+    ctx.globalAlpha = fog;
+    ctx.fillStyle = type.color;
+    ctx.beginPath();
+    ctx.arc(cx, cy + bob, size / 2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = "rgba(0,0,0,0.5)";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.fillStyle = "#0d0d10";
+    ctx.font = `bold ${Math.max(9, size * 0.32)}px Arial, sans-serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(type.icon, cx, cy + bob + 1);
+    ctx.restore();
+  }
+}
+
+function drawBuffIndicators() {
+  const now = performance.now();
+  const active = [];
+  if (now < damageBoostUntil) active.push({ text: `⚡ Усиленные пули ${((damageBoostUntil - now) / 1000).toFixed(1)}с`, color: "#ffb020" });
+  if (now < invisibleUntil) active.push({ text: `◐ Невидимость ${((invisibleUntil - now) / 1000).toFixed(1)}с`, color: "#7b4fe0" });
+  if (!active.length) return;
+  ctx.save();
+  ctx.font = "bold 13px Arial, sans-serif";
+  ctx.textAlign = "left";
+  active.forEach((a, i) => {
+    const y = H - 96 - i * 20;
+    ctx.fillStyle = "rgba(0,0,0,0.5)";
+    ctx.fillRect(10, y - 14, ctx.measureText(a.text).width + 14, 20);
+    ctx.fillStyle = a.color;
+    ctx.fillText(a.text, 17, y);
+  });
+  ctx.restore();
 }
 
 function drawBanner() {
@@ -286,9 +400,11 @@ function drawBanner() {
 
 function render() {
   drawWallsAndFloor();
+  drawPickups();
   drawSprites();
   drawWeapon();
   drawDamageFlash();
+  drawBuffIndicators();
   drawBanner();
   drawMinimap();
 }
@@ -346,13 +462,33 @@ function shoot() {
   });
 
   if (best) {
-    best.hp -= 22 + Math.random() * 18;
+    const boosted = performance.now() < damageBoostUntil;
+    let dmg = 22 + Math.random() * 18;
+    if (boosted) dmg *= DAMAGE_BOOST_MULT;
+    best.hp -= dmg;
     if (best.hp <= 0) {
       best.alive = false;
       totalKills++;
     }
     updateHud();
   }
+}
+
+function applyPowerup(type) {
+  if (type === "heal25") player.health = Math.min(100, player.health + 25);
+  else if (type === "heal50") player.health = Math.min(100, player.health + 50);
+  else if (type === "damage") damageBoostUntil = performance.now() + BUFF_DURATION_MS;
+  else if (type === "invis") invisibleUntil = performance.now() + BUFF_DURATION_MS;
+}
+
+function updatePickups() {
+  pickups.forEach((p) => {
+    if (p.collected) return;
+    if (Math.hypot(p.x - player.x, p.y - player.y) < PICKUP_RADIUS) {
+      p.collected = true;
+      applyPowerup(p.type);
+    }
+  });
 }
 
 function updatePlayer(dt) {
@@ -370,8 +506,9 @@ function updatePlayer(dt) {
 
 function updateEnemies(dt) {
   const cfg = DIFFICULTY[difficulty];
+  const invisible = performance.now() < invisibleUntil;
   enemies.forEach((e) => {
-    if (!e.alive) return;
+    if (!e.alive || invisible) return;
     const dx = player.x - e.x, dy = player.y - e.y;
     const dist = Math.hypot(dx, dy);
     if (dist < cfg.aggroRange && dist > 1.0) {
@@ -414,6 +551,7 @@ function update(dt) {
   const now = performance.now();
   updatePlayer(dt);
   if (now >= graceUntil) updateEnemies(dt);
+  updatePickups();
   checkWaveProgress(now);
   if (muzzleFlash > 0) muzzleFlash = Math.max(0, muzzleFlash - dt * 1000 * 3);
   if (damageFlash > 0) damageFlash = Math.max(0, damageFlash - dt * 1000);
@@ -457,18 +595,21 @@ function loseGame() {
   recordGameResult("doom", difficulty, "loss");
 }
 
-function pickSpawns(count, idx) {
-  const offset = (idx * 3) % ENEMY_SPAWNS.length;
-  const rotated = ENEMY_SPAWNS.slice(offset).concat(ENEMY_SPAWNS.slice(0, offset));
-  return rotated.slice(0, count);
+function spawnsForWave(count, cumulativeBefore) {
+  const list = [];
+  for (let i = 0; i < count; i++) {
+    list.push(ENEMY_SPAWNS[(cumulativeBefore + i) % ENEMY_SPAWNS.length]);
+  }
+  return list;
 }
 
 function spawnWave(idx) {
   const cfg = DIFFICULTY[difficulty];
   const count = cfg.waves[idx];
+  const cumulativeBefore = cfg.waves.slice(0, idx).reduce((sum, n) => sum + n, 0);
   const scale = 1 + idx * 0.15;
   const hp = cfg.hp * scale;
-  enemies = pickSpawns(count, idx).map((spawn) => ({
+  enemies = spawnsForWave(count, cumulativeBefore).map((spawn) => ({
     x: spawn.x,
     y: spawn.y,
     hp,
@@ -482,17 +623,29 @@ function spawnWave(idx) {
   graceUntil = performance.now() + (idx === 0 ? START_GRACE_MS : WAVE_GRACE_MS);
 }
 
+function spawnPickups() {
+  pickups = POWERUP_SPAWNS.map((spawn) => ({
+    x: spawn.x,
+    y: spawn.y,
+    type: POWERUP_TYPE_KEYS[Math.floor(Math.random() * POWERUP_TYPE_KEYS.length)],
+    collected: false,
+  }));
+}
+
 function startGame() {
-  player = { x: 1.5, y: 1.5, angle: 0.7, health: 100 };
+  player = { x: 2.5, y: 2.5, angle: 0.6, health: 100 };
   waveIndex = 0;
   totalKills = 0;
   intermissionUntil = 0;
+  damageBoostUntil = 0;
+  invisibleUntil = 0;
   keys = {};
   muzzleFlash = 0;
   damageFlash = 0;
   phase = "playing";
   lastTs = 0;
   spawnWave(0);
+  spawnPickups();
   hideOverlay();
   updateHud();
   if (rafId) cancelAnimationFrame(rafId);
