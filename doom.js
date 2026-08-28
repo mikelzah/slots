@@ -71,13 +71,15 @@ const POWERUP_TYPES = {
 };
 const POWERUP_TYPE_KEYS = Object.keys(POWERUP_TYPES);
 const PICKUP_RADIUS = 0.55;
-const BUFF_DURATION_MS = 5000;
+const BUFF_DURATION_MS = 3000;
+const PICKUP_LIFETIME_MS = 14000;
 const DAMAGE_BOOST_MULT = 1.8;
+const PATROL_SPEED_MULT = 0.55;
 
 const DIFFICULTY = {
-  easy: { waves: [2, 3, 3], hp: 45, speed: 1.0, dmg: 5, fireInterval: 1500, aggroRange: 6.5, label: "Лёгкий" },
-  medium: { waves: [3, 4, 5], hp: 60, speed: 1.4, dmg: 8, fireInterval: 1150, aggroRange: 8, label: "Средний" },
-  hard: { waves: [4, 5, 6, 6], hp: 75, speed: 1.9, dmg: 12, fireInterval: 850, aggroRange: 9.5, label: "Сложный" },
+  easy: { waves: [8, 10, 12], hp: 40, speed: 1.0, dmg: 5, fireInterval: 1500, aggroRange: 6.5, label: "Лёгкий" },
+  medium: { waves: [12, 16, 20], hp: 50, speed: 1.4, dmg: 8, fireInterval: 1150, aggroRange: 8, label: "Средний" },
+  hard: { waves: [18, 24, 32], hp: 60, speed: 1.9, dmg: 12, fireInterval: 850, aggroRange: 9.5, label: "Сложный" },
 };
 
 function totalEnemiesFor(cfg) {
@@ -293,7 +295,6 @@ function drawMinimap() {
     }
   }
   pickups.forEach((p) => {
-    if (p.collected) return;
     mctx.fillStyle = POWERUP_TYPES[p.type].color;
     mctx.beginPath();
     mctx.arc(p.x * cellW, p.y * cellH, 1.8, 0, Math.PI * 2);
@@ -321,7 +322,6 @@ function drawMinimap() {
 
 function drawPickups() {
   const visible = pickups
-    .filter((p) => !p.collected)
     .map((p) => {
       const dx = p.x - player.x, dy = p.y - player.y;
       const dist = Math.hypot(dx, dy);
@@ -481,12 +481,22 @@ function applyPowerup(type) {
   else if (type === "invis") invisibleUntil = performance.now() + BUFF_DURATION_MS;
 }
 
+function respawnPickup(p) {
+  const spawn = POWERUP_SPAWNS[Math.floor(Math.random() * POWERUP_SPAWNS.length)];
+  p.x = spawn.x;
+  p.y = spawn.y;
+  p.type = POWERUP_TYPE_KEYS[Math.floor(Math.random() * POWERUP_TYPE_KEYS.length)];
+  p.expiresAt = performance.now() + PICKUP_LIFETIME_MS;
+}
+
 function updatePickups() {
+  const now = performance.now();
   pickups.forEach((p) => {
-    if (p.collected) return;
     if (Math.hypot(p.x - player.x, p.y - player.y) < PICKUP_RADIUS) {
-      p.collected = true;
       applyPowerup(p.type);
+      respawnPickup(p);
+    } else if (now > p.expiresAt) {
+      respawnPickup(p);
     }
   });
 }
@@ -504,18 +514,40 @@ function updatePlayer(dt) {
   if (keys["arrowright"]) player.angle += TURN_SPEED * dt;
 }
 
+function updateEnemyWander(e, dt) {
+  // Enemies keep moving at all times; while they can't see the player they
+  // wander in a random direction, picking a new one whenever the old one
+  // times out or runs them straight into a wall.
+  e.wanderCooldown -= dt * 1000;
+  if (e.wanderCooldown <= 0) {
+    e.wanderAngle = Math.random() * Math.PI * 2;
+    e.wanderCooldown = 1800 + Math.random() * 2200;
+  }
+  const beforeX = e.x, beforeY = e.y;
+  const speed = e.speed * PATROL_SPEED_MULT * dt;
+  attemptMove(e, Math.cos(e.wanderAngle) * speed, Math.sin(e.wanderAngle) * speed, 0.3);
+  if (Math.abs(e.x - beforeX) < 1e-4 && Math.abs(e.y - beforeY) < 1e-4) e.wanderCooldown = 0;
+}
+
 function updateEnemies(dt) {
   const cfg = DIFFICULTY[difficulty];
   const invisible = performance.now() < invisibleUntil;
   enemies.forEach((e) => {
-    if (!e.alive || invisible) return;
+    if (!e.alive) return;
     const dx = player.x - e.x, dy = player.y - e.y;
     const dist = Math.hypot(dx, dy);
-    if (dist < cfg.aggroRange && dist > 1.0) {
+    const canSeePlayer = !invisible && dist < cfg.aggroRange && hasLineOfSight(e.x, e.y, player.x, player.y);
+
+    if (!canSeePlayer) {
+      updateEnemyWander(e, dt);
+      return;
+    }
+
+    if (dist > 1.0) {
       const nx = dx / dist, ny = dy / dist;
       attemptMove(e, nx * e.speed * dt, ny * e.speed * dt, 0.3);
     }
-    if (dist < 7.5 && hasLineOfSight(e.x, e.y, player.x, player.y)) {
+    if (dist < 7.5) {
       e.cooldown -= dt * 1000;
       if (e.cooldown <= 0) {
         e.cooldown = e.fireInterval + Math.random() * 400;
@@ -595,10 +627,21 @@ function loseGame() {
   recordGameResult("doom", difficulty, "loss");
 }
 
+function jitteredSpawn(base) {
+  // Many enemies can share the same base spawn point, so nudge them apart
+  // to a nearby floor cell instead of stacking exactly on top of each other.
+  for (let i = 0; i < 6; i++) {
+    const jx = base.x + (Math.random() - 0.5) * 1.6;
+    const jy = base.y + (Math.random() - 0.5) * 1.6;
+    if (!isWallAt(jx, jy)) return { x: jx, y: jy };
+  }
+  return { x: base.x, y: base.y };
+}
+
 function spawnsForWave(count, cumulativeBefore) {
   const list = [];
   for (let i = 0; i < count; i++) {
-    list.push(ENEMY_SPAWNS[(cumulativeBefore + i) % ENEMY_SPAWNS.length]);
+    list.push(jitteredSpawn(ENEMY_SPAWNS[(cumulativeBefore + i) % ENEMY_SPAWNS.length]));
   }
   return list;
 }
@@ -619,6 +662,8 @@ function spawnWave(idx) {
     fireInterval: cfg.fireInterval,
     alive: true,
     cooldown: Math.random() * cfg.fireInterval,
+    wanderAngle: Math.random() * Math.PI * 2,
+    wanderCooldown: Math.random() * 2000,
   }));
   graceUntil = performance.now() + (idx === 0 ? START_GRACE_MS : WAVE_GRACE_MS);
 }
@@ -628,7 +673,7 @@ function spawnPickups() {
     x: spawn.x,
     y: spawn.y,
     type: POWERUP_TYPE_KEYS[Math.floor(Math.random() * POWERUP_TYPE_KEYS.length)],
-    collected: false,
+    expiresAt: performance.now() + Math.random() * PICKUP_LIFETIME_MS,
   }));
 }
 
