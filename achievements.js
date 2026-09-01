@@ -27,7 +27,7 @@ const ACHIEVEMENTS = [
   { id: "durak_ace_defend", game: "durak", icon: "🅰️", title: "Козырной туз", desc: "Отбейтесь тузом от атаки бота." },
   { id: "durak_full_table", game: "durak", icon: "🎴", title: "Подкидной мастер", desc: "Доведите стол до 6 карт за один раунд." },
   { id: "durak_draw", game: "durak", icon: "🤝", title: "Ничья миром", desc: "Сыграйте партию вничью." },
-  { id: "durak_no_trump_win", game: "durak", icon: "🚫", title: "Без козырей", desc: "Выиграйте партию, ни разу не сыграв козырную карту." },
+  { id: "durak_no_trump_win", game: "durak", icon: "🚫", title: "Без козырей", desc: "Выиграйте партию, ни разу не отбившись козырем от атаки." },
   { id: "durak_marathon", game: "durak", icon: "📅", title: "Завсегдатай", desc: "Сыграйте 10 партий в Дурака." },
   { id: "durak_all_difficulties", game: "durak", icon: "🏆", title: "Три из трёх", desc: "Выиграйте на всех трёх уровнях сложности." },
 

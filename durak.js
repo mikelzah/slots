@@ -119,7 +119,7 @@ function initGame() {
     over: false,
     botTaking: false,
     tookCards: false,
-    playerUsedTrump: false,
+    playerDefendedWithTrump: false,
   };
 
   startAttackTurn();
@@ -141,8 +141,8 @@ function noteTableGrew() {
   if (game.table.length >= 6) unlockAchievement("durak_full_table");
 }
 
-function notePlayerCard(card) {
-  if (card.suit === game.trumpSuit) game.playerUsedTrump = true;
+function noteDefend(card) {
+  if (card.suit === game.trumpSuit) game.playerDefendedWithTrump = true;
 }
 
 function makeCardEl(card, { faceDown = false, clickable = false, extraClass = "" } = {}) {
@@ -204,7 +204,6 @@ function render() {
 function playAttack(card, index) {
   game.table.push({ attack: card, defend: null });
   game.player.splice(index, 1);
-  notePlayerCard(card);
   noteTableGrew();
   const pairIndex = game.table.length - 1;
   game.busy = true;
@@ -236,7 +235,6 @@ function handlePlayerCardClick(index) {
       }
       game.table.push({ attack: card, defend: null });
       game.player.splice(index, 1);
-      notePlayerCard(card);
       noteTableGrew();
       render();
       setStatus("Бот берёт карты. Подкиньте ещё или нажмите «Отдать карты боту».");
@@ -270,7 +268,7 @@ function handlePlayerCardClick(index) {
     }
     game.table[idx].defend = card;
     game.player.splice(index, 1);
-    notePlayerCard(card);
+    noteDefend(card);
     if (card.rank === 14) unlockAchievement("durak_ace_defend");
     game.busy = true;
     render();
@@ -498,7 +496,7 @@ function endGame(text, outcome) {
       unlockAchievement("durak_all_difficulties");
     }
     if (!game.tookCards) unlockAchievement("durak_no_take");
-    if (!game.playerUsedTrump) unlockAchievement("durak_no_trump_win");
+    if (!game.playerDefendedWithTrump) unlockAchievement("durak_no_trump_win");
   }
   render();
 }
