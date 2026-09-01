@@ -157,3 +157,68 @@
   .playing-card { width: 52px; height: 74px; font-size: 16px; }
   .table-pair { width: 52px; height: 92px; }
 }
+
+.mode-select {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.online-lobby {
+  padding: 20px 10px 6px;
+  text-align: center;
+}
+
+.lobby-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.online-lobby .withdraw-btn {
+  width: auto;
+  padding: 12px 28px;
+}
+
+.lobby-divider {
+  color: rgba(20,40,70,0.5);
+  font-size: 13px;
+}
+
+.lobby-join-row {
+  display: flex;
+  gap: 8px;
+}
+
+.lobby-join-row .field-input {
+  width: 160px;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+}
+
+.lobby-join-row .withdraw-btn {
+  width: auto;
+  margin-top: 0;
+}
+
+.room-code-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.room-code {
+  font-family: monospace;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  background: #f7f9fb;
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  padding: 4px 12px;
+}
