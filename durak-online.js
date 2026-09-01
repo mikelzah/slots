@@ -29,8 +29,8 @@ function takeCardFromHand(hand, card) {
   if (idx !== -1) hand.splice(idx, 1);
 }
 
-function allDefendedView(v) {
-  return v.table.length > 0 && v.table.every((p) => p.defend);
+function tableAllDefended(table) {
+  return table.length > 0 && table.every((p) => p.defend);
 }
 
 const onEls = {
@@ -145,10 +145,6 @@ function hostDealAndStart() {
   hostPushState();
 }
 
-function hostAllDefended(g) {
-  return g.table.length > 0 && g.table.every((p) => p.defend);
-}
-
 function hostDrawPhase(sides) {
   const g = on.hostGame;
   sides.forEach((side) => {
@@ -190,7 +186,7 @@ function hostApplyAction(side, type, card) {
     if (side !== attackerSide) return;
     if (!card || !handHasCard(g.hands[side], card)) return;
     const empty = g.table.length === 0;
-    if (!empty && g.takingSide === null && !hostAllDefended(g)) return;
+    if (!empty && g.takingSide === null && !tableAllDefended(g.table)) return;
     if (g.table.length >= 6) return;
     if (!empty) {
       const ranksOnTable = new Set(
@@ -220,7 +216,7 @@ function hostApplyAction(side, type, card) {
     hostDrawPhase([attackerSide]);
     hostCheckGameOver();
   } else if (type === "bito") {
-    if (side !== attackerSide || g.takingSide !== null || !hostAllDefended(g)) return;
+    if (side !== attackerSide || g.takingSide !== null || !tableAllDefended(g.table)) return;
     const prevAttacker = attackerSide;
     g.table = [];
     g.attacker = defenderSide;
@@ -234,16 +230,20 @@ function hostApplyAction(side, type, card) {
 
 function hostPushState() {
   const g = on.hostGame;
+  // Firebase silently deletes any key whose value is `null` instead of storing
+  // it, so a round-trip through the DB would drop takingSide/winner back to
+  // `undefined` once they'd ever been set to a real value. Use an explicit
+  // "none" sentinel on the wire and translate it back to null on read.
   const state = {
     trumpCard: g.trumpCard,
     trumpSuit: g.trumpSuit,
     deckCount: g.deck.length,
     table: g.table,
     attacker: g.attacker,
-    takingSide: g.takingSide,
+    takingSide: g.takingSide || "none",
     counts: { host: g.hands.host.length, guest: g.hands.guest.length },
     over: g.over,
-    winner: g.winner || null,
+    winner: g.winner || "none",
     status: "playing",
     updatedAt: firebase.database.ServerValue.TIMESTAMP,
   };
@@ -312,7 +312,7 @@ function onlineHandleMyCardClick(card) {
       requestAction("attack", card);
       return;
     }
-    if (!allDefendedView(v)) {
+    if (!tableAllDefended(v.table)) {
       setOnlineStatus("Дождитесь ответа соперника.");
       return;
     }
@@ -387,7 +387,7 @@ function renderOnline() {
   });
 
   const isAttacker = v.attacker === on.myKey;
-  const canBito = !v.over && isAttacker && v.takingSide === null && allDefendedView(v);
+  const canBito = !v.over && isAttacker && v.takingSide === null && tableAllDefended(v.table);
   const canTake = !v.over && !isAttacker && v.takingSide === null && v.table.some((p) => !p.defend);
   const canGive = !v.over && isAttacker && v.takingSide === on.oppKey;
   onEls.takeBtn.classList.toggle("hidden", !canTake);
@@ -437,6 +437,7 @@ async function createOnlineRoom() {
     busy: false,
     hostGame: null,
     opponentOffline: false,
+    listenerRefs: [],
   };
 
   await roomRef.set({
@@ -447,13 +448,16 @@ async function createOnlineRoom() {
   });
   roomRef.child("hostConnected").onDisconnect().set(false);
 
-  roomRef.child("actions").on("child_added", (snap) => {
+  const actionsRef = roomRef.child("actions");
+  actionsRef.on("child_added", (snap) => {
     const action = snap.val();
     if (action && action.by === "guest") hostApplyAction("guest", action.type, action.card);
     snap.ref.remove();
   });
+  on.listenerRefs.push(actionsRef);
 
-  roomRef.child("guestConnected").on("value", (snap) => {
+  const guestConnectedRef = roomRef.child("guestConnected");
+  guestConnectedRef.on("value", (snap) => {
     const connected = snap.val() === true;
     if (connected && !on.hostGame) {
       hostDealAndStart();
@@ -462,6 +466,7 @@ async function createOnlineRoom() {
     on.opponentOffline = !!on.hostGame && !connected;
     if (on.view) renderOnline();
   });
+  on.listenerRefs.push(guestConnectedRef);
 
   showOnlineRoomUI(code);
   setOnlineStatus("Комната создана. Ждём соперника...");
@@ -484,6 +489,10 @@ async function joinOnlineRoom(rawCode) {
     return;
   }
   const data = snap.val();
+  if (data.hostConnected === false || data.status === "closed") {
+    onEls.lobbyError.textContent = "Хост покинул эту комнату.";
+    return;
+  }
   if (data.guestConnected) {
     onEls.lobbyError.textContent = "В этой комнате уже есть второй игрок.";
     return;
@@ -500,30 +509,43 @@ async function joinOnlineRoom(rawCode) {
     opponentOffline: false,
     stateReceived: false,
     handReceived: false,
+    listenerRefs: [],
   };
 
   await roomRef.update({ guestConnected: true });
   roomRef.child("guestConnected").onDisconnect().set(false);
 
-  roomRef.child("hostConnected").on("value", (snap) => {
+  const hostConnectedRef = roomRef.child("hostConnected");
+  hostConnectedRef.on("value", (snap) => {
     on.opponentOffline = snap.val() === false;
     if (on.view) renderOnline();
   });
+  on.listenerRefs.push(hostConnectedRef);
 
-  roomRef.child("state").on("value", (snap) => {
+  const stateRef = roomRef.child("state");
+  stateRef.on("value", (snap) => {
     const state = snap.val();
     if (!state) return;
+    if (state.takingSide === "none") state.takingSide = null;
+    if (state.winner === "none") state.winner = null;
+    // Firebase drops a key entirely when its value is an empty array, so an
+    // empty table (round just finished) arrives with no `table` key at all —
+    // default it explicitly instead of leaving the previous (stale) table.
+    if (!state.table) state.table = [];
     on.busy = false;
     on.view = Object.assign({}, on.view, state);
     on.stateReceived = true;
     if (on.stateReceived && on.handReceived) renderOnline();
   });
+  on.listenerRefs.push(stateRef);
 
-  roomRef.child("hands/guest").on("value", (snap) => {
+  const myHandRef = roomRef.child("hands/guest");
+  myHandRef.on("value", (snap) => {
     on.view = Object.assign({}, on.view, { myHand: snap.val() || [] });
     on.handReceived = true;
     if (on.stateReceived && on.handReceived) renderOnline();
   });
+  on.listenerRefs.push(myHandRef);
 
   showOnlineRoomUI(code);
   setOnlineStatus("Подключено. Ждём начала раздачи...");
@@ -531,9 +553,8 @@ async function joinOnlineRoom(rawCode) {
 
 function leaveOnlineRoom() {
   if (!on) return;
-  const { roomRef, role } = on;
-  roomRef.off();
-  roomRef.child("actions").off();
+  const { roomRef, role, listenerRefs } = on;
+  (listenerRefs || []).forEach((ref) => ref.off());
   if (role === "host") {
     roomRef.update({ status: "closed", hostConnected: false }).catch(() => {});
   } else {
