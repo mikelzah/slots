@@ -68,7 +68,13 @@ let firebaseInitTried = false;
 
 function isFirebaseConfigured() {
   const cfg = window.FIREBASE_CONFIG;
-  return !!(cfg && cfg.apiKey && cfg.apiKey !== "YOUR_API_KEY" && cfg.databaseURL);
+  return !!(
+    cfg &&
+    cfg.apiKey &&
+    cfg.apiKey !== "YOUR_API_KEY" &&
+    cfg.databaseURL &&
+    /^https:\/\//.test(cfg.databaseURL)
+  );
 }
 
 function getDb() {
