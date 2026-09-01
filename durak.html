@@ -55,6 +55,14 @@
 
   <main class="content">
     <div class="stack">
+    <div class="mode-select">
+      <div class="method-tabs" id="gameModeTabs">
+        <button type="button" class="method-tab active" data-mode="bot">Против бота</button>
+        <button type="button" class="method-tab" data-mode="online">С другом (онлайн)</button>
+      </div>
+    </div>
+
+    <div id="botModeWrap">
     <div class="card durak-card" id="game">
       <div class="card-header">
         <span class="card-icon">🃏</span>
@@ -118,6 +126,69 @@
           <span class="stats-cell">% побед</span>
         </div>
         <div id="statsPanel"></div>
+      </div>
+    </div>
+    </div>
+
+    <div id="onlineModeWrap" class="hidden">
+    <div class="card durak-card" id="onlineGame">
+      <div class="card-header">
+        <span class="card-icon">🌐</span>
+        <h1>Дурак с другом</h1>
+      </div>
+      <p class="subtitle">Играйте вживую с другим человеком по коду комнаты — без бота.</p>
+
+      <div class="online-lobby" id="onlineLobby">
+        <div class="field-error" id="onlineConfigWarning">
+          ⚠️ Онлайн-режим не настроен. Заполните свои ключи Firebase в файле <code>firebase-config.js</code> (инструкция в комментариях файла).
+        </div>
+        <div class="lobby-actions">
+          <button id="onlineCreateBtn" class="withdraw-btn">Создать комнату</button>
+          <div class="lobby-divider">или</div>
+          <div class="lobby-join-row">
+            <input id="onlineJoinCode" class="field-input" placeholder="Код комнаты" maxlength="6" />
+            <button id="onlineJoinBtn" class="withdraw-btn secondary">Войти</button>
+          </div>
+        </div>
+        <div class="field-error" id="onlineLobbyError"></div>
+      </div>
+
+      <div class="online-room hidden" id="onlineRoom">
+        <div class="room-code-row">
+          <span class="balance-label">Код комнаты</span>
+          <span class="room-code" id="onlineRoomCode">—</span>
+          <button id="onlineCopyBtn" class="new-game-btn">Скопировать</button>
+          <button id="onlineLeaveBtn" class="new-game-btn">Выйти</button>
+        </div>
+
+        <div class="durak-meta">
+          <div class="meta-chip">
+            <span class="balance-label">Козырь</span>
+            <span id="onTrumpDisplay" class="meta-value">—</span>
+          </div>
+          <div class="meta-chip">
+            <span class="balance-label">В колоде</span>
+            <span id="onDeckCount" class="meta-value">0</span>
+          </div>
+          <div class="meta-chip">
+            <span class="balance-label">У соперника карт</span>
+            <span id="onOppCount" class="meta-value">0</span>
+          </div>
+        </div>
+
+        <div class="durak-status" id="onlineStatus">Ожидаем соперника...</div>
+
+        <div class="bot-hand" id="onOppHand"></div>
+
+        <div class="durak-table" id="onlineTable"></div>
+
+        <div class="durak-controls">
+          <button id="onTakeBtn" class="withdraw-btn secondary hidden">Взять карты</button>
+          <button id="onBitoBtn" class="withdraw-btn hidden">Бито</button>
+          <button id="onGiveBtn" class="withdraw-btn hidden">Отдать карты</button>
+        </div>
+
+        <div class="player-hand" id="onMyHand"></div>
       </div>
     </div>
     </div>
@@ -196,6 +267,10 @@
 <script src="stats.js"></script>
 <script src="achievements.js"></script>
 <script src="durak.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="durak-online.js"></script>
 <script src="paywall.js"></script>
 </body>
 </html>
