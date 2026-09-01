@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>АМС-КОМПЛЕКС · Достижения</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%231565c0%22/><text x=%2250%22 y=%2268%22 font-size=%2260%22 fill=%22white%22 text-anchor=%22middle%22 font-family=%22Arial%22>A</text></svg>" />
+<link rel="stylesheet" href="style.css" />
+<link rel="stylesheet" href="achievements.css" />
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-left">
+    <div class="logo">A</div>
+    <span class="brand">АМС-КОМПЛЕКС</span>
+    <nav class="topnav">
+      <a href="index.html">Слот-Симулятор</a>
+      <a href="durak.html">Дурак Онлайн</a>
+      <a href="checkers.html">Шашки</a>
+      <a href="doom.html">Doom</a>
+      <a href="#" class="active">Достижения</a>
+    </nav>
+  </div>
+  <div class="topbar-right">
+    <span class="install">Инсталляция: 001 - АО "Золото Селигдара" <span class="chev">▾</span></span>
+    <span class="user">System Administrator <span class="chev">▾</span></span>
+    <span class="help">?</span>
+  </div>
+</header>
+
+<div class="page">
+  <aside class="sidebar">
+    <div class="sidebar-item locked-feature" data-feature="Техобслуживание"><span class="dot dot-teal"></span>Техобслуживание<span class="lock-icon">🔒</span></div>
+    <div class="sidebar-item locked-feature" data-feature="Отклонения"><span class="dot dot-red"></span>Отклонения<span class="lock-icon">🔒</span></div>
+    <div class="sidebar-item locked-feature" data-feature="Склад"><span class="dot dot-purple"></span>Склад<span class="lock-icon">🔒</span></div>
+    <div class="sidebar-item locked-feature" data-feature="Закупки"><span class="dot dot-green"></span>Закупки<span class="lock-icon">🔒</span></div>
+    <div class="sidebar-item locked-feature" data-feature="Справочники"><span class="dot dot-orange"></span>Справочники<span class="lock-icon">🔒</span></div>
+    <div class="sidebar-item locked-feature" data-feature="Уведомления"><span class="dot dot-blue"></span>Уведомления<span class="lock-icon">🔒</span></div>
+    <a href="index.html" class="sidebar-item">
+      <span class="dot dot-cyan"></span>Слот-Симулятор
+    </a>
+    <a href="durak.html" class="sidebar-item">
+      <span class="dot dot-red"></span>Дурак Онлайн
+    </a>
+    <a href="checkers.html" class="sidebar-item">
+      <span class="dot dot-orange"></span>Шашки
+    </a>
+    <a href="doom.html" class="sidebar-item">
+      <span class="dot dot-purple"></span>Doom
+    </a>
+    <div class="sidebar-item active">
+      <span class="dot dot-gold"></span>Достижения
+      <span class="ach-badge">0/40</span>
+    </div>
+  </aside>
+
+  <main class="content">
+    <div class="card achievements-card">
+      <div class="card-header">
+        <span class="card-icon">🏆</span>
+        <h1>Достижения</h1>
+        <button id="achResetBtn" class="new-game-btn">Сбросить</button>
+      </div>
+      <p class="subtitle">Личные ачивки за игру в Слот-Симулятор, Дурак Онлайн, Шашки и Doom. Прогресс хранится в этом браузере.</p>
+
+      <div class="ach-summary">
+        <span class="ach-summary-label">Открыто</span>
+        <div class="ach-summary-track"><div class="ach-summary-fill" id="achSummaryFill"></div></div>
+        <span class="ach-summary-count" id="achSummaryCount">0 / 40</span>
+      </div>
+
+      <div id="achList"></div>
+    </div>
+  </main>
+</div>
+
+<div class="ach-toast-layer" id="achToastLayer"></div>
+
+<script src="achievements.js"></script>
+<script>initAchievementsPage();</script>
+</body>
+</html>

@@ -7,6 +7,7 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%231565c0%22/><text x=%2250%22 y=%2268%22 font-size=%2260%22 fill=%22white%22 text-anchor=%22middle%22 font-family=%22Arial%22>A</text></svg>" />
 <link rel="stylesheet" href="style.css" />
 <link rel="stylesheet" href="doom.css?v=4" />
+<link rel="stylesheet" href="achievements.css" />
 </head>
 <body>
 <header class="topbar">
@@ -18,6 +19,7 @@
       <a href="durak.html">Дурак Онлайн</a>
       <a href="checkers.html">Шашки</a>
       <a href="#" class="active">Doom</a>
+      <a href="achievements.html">Достижения</a>
     </nav>
   </div>
   <div class="topbar-right">
@@ -45,6 +47,10 @@
       <span class="dot dot-orange"></span>Шашки
     </a>
     <div class="sidebar-item active"><span class="dot dot-purple"></span>Doom</div>
+    <a href="achievements.html" class="sidebar-item">
+      <span class="dot dot-gold"></span>Достижения
+      <span class="ach-badge">0/40</span>
+    </a>
   </aside>
 
   <main class="content">
@@ -189,7 +195,10 @@
   </div>
 </div>
 
+<div class="ach-toast-layer" id="achToastLayer"></div>
+
 <script src="stats.js"></script>
+<script src="achievements.js"></script>
 <script src="doom.js?v=4"></script>
 <script src="paywall.js"></script>
 </body>

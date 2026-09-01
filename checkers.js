@@ -46,6 +46,8 @@ let playerTurn = true;
 let selected = null;
 let gameOver = false;
 let busy = false;
+let playerChainCaptures = 0;
+let playerMoveCount = 0;
 
 function inBounds(r, c) {
   return r >= 0 && r < SIZE && c >= 0 && c < SIZE;
@@ -247,6 +249,8 @@ function startGame() {
   selected = null;
   gameOver = false;
   busy = false;
+  playerChainCaptures = 0;
+  playerMoveCount = 0;
   updateCounts();
   setStatus("Ваш ход — выберите шашку.");
   render();
@@ -305,10 +309,15 @@ function onSquareClick(r, c) {
     const candidates = movesFrom(moves, selected[0], selected[1]);
     const move = candidates.find((m) => m.to[0] === r && m.to[1] === c);
     if (move) {
+      const movingPiece = board[selected[0]][selected[1]];
+      const wasKingBefore = movingPiece.king;
       const wasCapture = applyMove(board, move);
       updateCounts();
 
+      if (!wasKingBefore && movingPiece.king) unlockAchievement("checkers_king");
       if (wasCapture) {
+        playerChainCaptures++;
+        if (playerChainCaptures >= 3) unlockAchievement("checkers_triple_capture");
         const cont = getMovesForPiece(board, r, c).captures;
         if (cont.length) {
           selected = move.to;
@@ -342,6 +351,7 @@ function onSquareClick(r, c) {
 }
 
 function endPlayerTurn() {
+  playerMoveCount++;
   if (countPieces("bot") === 0) {
     endGame("Вы победили! У бота не осталось шашек. 🎉", "win");
     return;
@@ -398,6 +408,7 @@ function finishBotTurn() {
     return;
   }
   playerTurn = true;
+  playerChainCaptures = 0;
   busy = false;
   render();
   setStatus("Ваш ход — выберите шашку.");
@@ -407,7 +418,22 @@ function endGame(text, outcome) {
   gameOver = true;
   busy = false;
   setStatus(text);
-  if (outcome) recordGameResult("checkers", checkersDifficulty, outcome);
+  if (outcome) {
+    recordGameResult("checkers", checkersDifficulty, outcome);
+    if (achBump("checkersGamesPlayed") >= 10) unlockAchievement("checkers_marathon");
+  }
+  if (outcome === "win") {
+    unlockAchievement("checkers_first_win");
+    if (checkersDifficulty === "medium") unlockAchievement("checkers_win_medium");
+    if (checkersDifficulty === "hard") unlockAchievement("checkers_win_hard");
+    achSetFlag(`checkersWin_${checkersDifficulty}`, true);
+    if (achGetFlag("checkersWin_easy") && achGetFlag("checkersWin_medium") && achGetFlag("checkersWin_hard")) {
+      unlockAchievement("checkers_all_difficulties");
+    }
+    if (countPieces("player") === 12) unlockAchievement("checkers_clean_win");
+    if (countPieces("player") === 1) unlockAchievement("checkers_comeback");
+    if (playerMoveCount <= 20) unlockAchievement("checkers_speedrun");
+  }
   render();
 }
 

@@ -61,6 +61,7 @@ function renderBalance() {
   els.balance.textContent = formatNumber(state.balance);
   localStorage.setItem(BALANCE_KEY, state.balance);
   syncWithdrawAmount();
+  if (state.balance >= 1000000) unlockAchievement("slot_millionaire");
 }
 
 function syncWithdrawAmount() {
@@ -153,6 +154,10 @@ async function spin() {
   state.balance -= state.bet;
   renderBalance();
 
+  const spinCount = achBump("slotSpinCount");
+  if (spinCount === 1) unlockAchievement("slot_first_spin");
+  if (spinCount >= 200) unlockAchievement("slot_marathon");
+
   const outcome = els.reels.map(() => weightedRandomSymbol());
 
   await Promise.all(
@@ -172,9 +177,18 @@ async function spin() {
     renderBalance();
     els.message.textContent = `${outcome[0].icon} × ${matchCount} — ВЫИГРЫШ ${formatNumber(winnings)} ₽!`;
     els.message.classList.add("win");
+
+    achSetFlag("slotLossStreak", 0);
+    unlockAchievement("slot_triple");
+    if (matchCount >= 4) unlockAchievement("slot_quad");
+    if (matchCount >= 5 && outcome[0].icon === "7️⃣") unlockAchievement("slot_jackpot");
+    const wonSymbols = achAddToSet("slotSymbolsWon", outcome[0].icon);
+    if (wonSymbols.length >= SYMBOLS.length) unlockAchievement("slot_collector");
   } else {
     els.message.textContent = "Комбинации нет. Попробуйте ещё раз.";
     els.message.classList.remove("win");
+    const streak = achBump("slotLossStreak");
+    if (streak >= 15) unlockAchievement("slot_losing_streak");
   }
 
   state.spinning = false;
@@ -273,6 +287,9 @@ els.withdrawBtn.addEventListener("click", () => {
     els.withdrawSuccess.classList.remove("hidden");
     state.withdrawing = false;
     els.spinBtn.disabled = false;
+
+    if (state.method === "card") unlockAchievement("slot_card_withdraw");
+    else unlockAchievement("slot_sbp_withdraw");
   }, 1300);
 });
 

@@ -139,6 +139,7 @@ a.sidebar-item {
 .dot-orange { background: var(--orange); }
 .dot-blue { background: var(--blue); }
 .dot-cyan { background: #17b5b0; }
+.dot-gold { background: #d4af37; }
 
 .content {
   flex: 1;

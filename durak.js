@@ -118,6 +118,8 @@ function initGame() {
     busy: false,
     over: false,
     botTaking: false,
+    tookCards: false,
+    playerUsedTrump: false,
   };
 
   startAttackTurn();
@@ -133,6 +135,14 @@ function allDefended() {
 
 function hasUndefended() {
   return game.table.some((p) => !p.defend);
+}
+
+function noteTableGrew() {
+  if (game.table.length >= 6) unlockAchievement("durak_full_table");
+}
+
+function notePlayerCard(card) {
+  if (card.suit === game.trumpSuit) game.playerUsedTrump = true;
 }
 
 function makeCardEl(card, { faceDown = false, clickable = false, extraClass = "" } = {}) {
@@ -194,6 +204,8 @@ function render() {
 function playAttack(card, index) {
   game.table.push({ attack: card, defend: null });
   game.player.splice(index, 1);
+  notePlayerCard(card);
+  noteTableGrew();
   const pairIndex = game.table.length - 1;
   game.busy = true;
   render();
@@ -224,6 +236,8 @@ function handlePlayerCardClick(index) {
       }
       game.table.push({ attack: card, defend: null });
       game.player.splice(index, 1);
+      notePlayerCard(card);
+      noteTableGrew();
       render();
       setStatus("Бот берёт карты. Подкиньте ещё или нажмите «Отдать карты боту».");
       return;
@@ -256,6 +270,8 @@ function handlePlayerCardClick(index) {
     }
     game.table[idx].defend = card;
     game.player.splice(index, 1);
+    notePlayerCard(card);
+    if (card.rank === 14) unlockAchievement("durak_ace_defend");
     game.busy = true;
     render();
     setStatus("Вы отбились. Бот думает...");
@@ -468,7 +484,22 @@ function finishIfGameOver() {
 function endGame(text, outcome) {
   game.over = true;
   setStatus(text);
-  if (outcome) recordGameResult("durak", botDifficulty, outcome);
+  if (outcome) {
+    recordGameResult("durak", botDifficulty, outcome);
+    if (achBump("durakGamesPlayed") >= 10) unlockAchievement("durak_marathon");
+  }
+  if (outcome === "draw") unlockAchievement("durak_draw");
+  if (outcome === "win") {
+    unlockAchievement("durak_first_win");
+    if (botDifficulty === "medium") unlockAchievement("durak_win_medium");
+    if (botDifficulty === "hard") unlockAchievement("durak_win_hard");
+    achSetFlag(`durakWin_${botDifficulty}`, true);
+    if (achGetFlag("durakWin_easy") && achGetFlag("durakWin_medium") && achGetFlag("durakWin_hard")) {
+      unlockAchievement("durak_all_difficulties");
+    }
+    if (!game.tookCards) unlockAchievement("durak_no_take");
+    if (!game.playerUsedTrump) unlockAchievement("durak_no_trump_win");
+  }
   render();
 }
 
@@ -512,6 +543,7 @@ function botThrowInBeforePlayerTake() {
 }
 
 function finalizePlayerTake() {
+  game.tookCards = true;
   game.player.push(...game.table.flatMap((p) => [p.attack, p.defend].filter(Boolean)));
   game.table = [];
   sortHand(game.player);

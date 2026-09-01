@@ -123,6 +123,8 @@ let enemies = [];
 let pickups = [];
 let waveIndex = 0;
 let totalKills = 0;
+let waveStartHealth = 100;
+let waveClearHandled = false;
 let graceUntil = 0;
 let intermissionUntil = 0;
 let damageBoostUntil = 0;
@@ -469,6 +471,10 @@ function shoot() {
     if (best.hp <= 0) {
       best.alive = false;
       totalKills++;
+      unlockAchievement("doom_first_kill");
+      const cumulativeKills = achBump("doomTotalKills");
+      if (cumulativeKills >= 50) unlockAchievement("doom_50_kills");
+      if (cumulativeKills >= 200) unlockAchievement("doom_200_kills");
     }
     updateHud();
   }
@@ -479,6 +485,8 @@ function applyPowerup(type) {
   else if (type === "heal50") player.health = Math.min(100, player.health + 50);
   else if (type === "damage") damageBoostUntil = performance.now() + BUFF_DURATION_MS;
   else if (type === "invis") invisibleUntil = performance.now() + BUFF_DURATION_MS;
+  const collected = achAddToSet("doomPowerupTypes", type);
+  if (collected.length >= POWERUP_TYPE_KEYS.length) unlockAchievement("doom_collector");
 }
 
 function respawnPickup(p) {
@@ -566,6 +574,11 @@ function checkWaveProgress(now) {
   const waveCleared = enemies.length > 0 && enemies.every((e) => !e.alive);
   if (!waveCleared) return;
 
+  if (!waveClearHandled) {
+    waveClearHandled = true;
+    if (player.health >= waveStartHealth) unlockAchievement("doom_no_damage_wave");
+  }
+
   if (waveIndex + 1 >= cfg.waves.length) {
     winGame();
     return;
@@ -616,6 +629,11 @@ function winGame() {
   if (document.pointerLockElement === canvas) document.exitPointerLock();
   showOverlay("Победа!", "Все демоны на уровне уничтожены. Отличная работа, морпех.", "Играть снова");
   recordGameResult("doom", difficulty, "win");
+  if (achBump("doomGamesPlayed") >= 10) unlockAchievement("doom_marathon");
+  if (difficulty === "easy") unlockAchievement("doom_win_easy");
+  if (difficulty === "medium") unlockAchievement("doom_win_medium");
+  if (difficulty === "hard") unlockAchievement("doom_win_hard");
+  if (player.health >= 100) unlockAchievement("doom_flawless_win");
 }
 
 function loseGame() {
@@ -625,6 +643,7 @@ function loseGame() {
   const cfg = DIFFICULTY[difficulty];
   showOverlay("Вы погибли", `Убито демонов: ${totalKills} из ${totalEnemiesFor(cfg)}.`, "Попробовать снова");
   recordGameResult("doom", difficulty, "loss");
+  if (achBump("doomGamesPlayed") >= 10) unlockAchievement("doom_marathon");
 }
 
 function jitteredSpawn(base) {
@@ -666,6 +685,8 @@ function spawnWave(idx) {
     wanderCooldown: Math.random() * 2000,
   }));
   graceUntil = performance.now() + (idx === 0 ? START_GRACE_MS : WAVE_GRACE_MS);
+  waveStartHealth = player.health;
+  waveClearHandled = false;
 }
 
 function spawnPickups() {
