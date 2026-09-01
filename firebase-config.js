@@ -4,19 +4,21 @@
 // Онлайн-режим синхронизирует партию между двумя браузерами через
 // Firebase Realtime Database.
 //
-// projectId, apiKey и остальные поля ниже уже заполнены значениями
-// проекта amskgames. Осталось только включить саму Realtime Database
-// и подставить её адрес в databaseURL:
+// Ниже уже стоят реальные значения проекта amskgames и его Realtime
+// Database (region europe-west1) — менять ничего не нужно, если только
+// вы не захотите переключиться на другой Firebase-проект. В таком
+// случае: Project settings → General → Your apps (для apiKey и т.п.) и
+// Build → Realtime Database (для databaseURL, показывается наверху
+// страницы после создания базы).
 //
-//   1. Откройте https://console.firebase.google.com/project/amskgames/database
-//   2. Нажмите «Create Database», выберите регион и режим
-//      «Start in test mode» (открытые правила чтения/записи — этого
-//      достаточно для игры с другом без авторизации).
-//   3. После создания наверху страницы появится адрес базы вида
-//      https://amskgames-default-rtdb.europe-west1.firebasedatabase.app
-//      — скопируйте его вместо заглушки databaseURL ниже.
+// Не забудьте, что база создана в режиме «test mode» — правила чтения
+// и записи открыты для всех. Так и должно быть для казуальной игры с
+// другом без авторизации, но по умолчанию test mode перестаёт
+// действовать через 30 дней. Чтобы не столкнуться с этим внезапно,
+// зайдите в Realtime Database → Rules и явно пропишите:
+//   { "rules": { ".read": true, ".write": true } }
 //
-// ВНИМАНИЕ: правила «test mode» делают базу полностью открытой на чтение
+// ВНИМАНИЕ: такие правила делают базу полностью открытой на чтение
 // и запись — этого достаточно для казуальной игры с другом, но означает,
 // что теоретически руку соперника можно прочитать через консоль
 // разработчика. Для более серьёзного использования добавьте Firebase
@@ -26,14 +28,14 @@
 // клиентском коде — доступ к данным ограничивается правилами базы, а не
 // секретностью ключа.
 //
-// Пока databaseURL не заполнен реальным адресом, кнопки «Создать
+// Если конфигурация ниже вдруг окажется невалидной, кнопки «Создать
 // комнату» / «Войти» в разделе «Дурак с другом» останутся заблокированы,
 // а бот-режим продолжит работать как обычно — он не зависит от Firebase.
 
 window.FIREBASE_CONFIG = {
   apiKey: "AIzaSyBrjXBZulPElN-v3UFUfZUYJAJoz1CfImQ",
   authDomain: "amskgames.firebaseapp.com",
-  databaseURL: "YOUR_DATABASE_URL",
+  databaseURL: "https://amskgames-default-rtdb.europe-west1.firebasedatabase.app",
   projectId: "amskgames",
   storageBucket: "amskgames.firebasestorage.app",
   messagingSenderId: "88619986841",
