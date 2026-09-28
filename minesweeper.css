@@ -1,0 +1,41 @@
+.mine-page .content, .mine-page .stack { min-width: 0; }
+.mine-page .sidebar { flex-shrink: 0; }
+.mine-page .stack { max-width: 1160px; }
+.mine-page .stats-card { max-width: none; }
+.mine-page .card-header { flex-wrap: wrap; }
+.mine-button {
+  border: 1px solid var(--border); background: #fff; color: var(--blue-dark);
+  font: inherit; font-size: 13px; font-weight: 600; padding: 10px 14px;
+  border-radius: 8px; cursor: pointer;
+}
+.mine-button:hover { background: #eaf3fc; }
+.mine-page .card-header .mine-button { margin-left: auto; }
+.mine-button[aria-pressed="true"] { background: var(--blue); color: #fff; }
+.mine-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin: 20px 0; }
+.mine-controls select { padding: 10px; border: 1px solid var(--border); border-radius: 8px; background: white; color: var(--text); max-width: 100%; }
+.mine-meta { display: flex; flex-wrap: wrap; gap: 12px; }
+.mine-meta > div { flex: 1; min-width: 100px; background: var(--bg); border-radius: 8px; padding: 12px; }
+.mine-meta strong { display: block; margin-top: 6px; font-size: 22px; font-variant-numeric: tabular-nums; }
+.mine-status { color: var(--blue-dark); font-weight: 600; min-height: 22px; }
+.mine-status[data-state="won"] { color: #217235; }
+.mine-status[data-state="lost"] { color: #b4233a; }
+.mine-scroll { overflow-x: auto; padding: 4px 4px 12px; }
+.mine-board { display: grid; grid-template-columns: repeat(var(--mine-cols), 32px); gap: 3px; width: max-content; padding: 8px; border-radius: 10px; background: #dce4ed; }
+.mine-cell { width: 32px; height: 32px; padding: 0; border: 1px solid #b2c4d6; border-bottom: 3px solid #9db4ca; border-radius: 4px; background: #f6faff; color: var(--text); font: 700 18px "Segoe UI", sans-serif; cursor: pointer; touch-action: manipulation; user-select: none; }
+.mine-cell:hover:not(.is-open) { background: #cde4fc; }
+.mine-cell.is-open { border: 1px solid #ccd6e1; background: #e8edf3; cursor: default; }
+.mine-cell.is-mine { background: #ffe1e6; }
+.mine-cell.is-exploded, .mine-cell.is-wrong { background: #ffadb9; }
+.mine-cell[data-number="1"] { color: #155aba; }
+.mine-cell[data-number="2"] { color: #267232; }
+.mine-cell[data-number="3"] { color: #bf233c; }
+.mine-cell[data-number="4"] { color: #6230a0; }
+.mine-cell[data-number="5"], .mine-cell[data-number="6"], .mine-cell[data-number="7"], .mine-cell[data-number="8"] { color: #783c16; }
+.mine-page button:focus-visible, .mine-page select:focus-visible { outline: 3px solid #e0a021; outline-offset: 1px; position: relative; z-index: 1; }
+.mine-help { color: #526374; line-height: 1.7; font-size: 13px; }
+.mine-page .topnav { display: flex; flex-wrap: wrap; gap: 4px; }
+@media (max-width: 700px) {
+  .mine-page .content { padding: 12px; }
+  .mine-page .card { padding: 16px; }
+  .mine-controls { align-items: stretch; flex-direction: column; }
+}
