@@ -1,3 +1,6 @@
+export function mount(lifecycle) {
+const { document, setTimeout, setInterval, clearTimeout, clearInterval, requestAnimationFrame, cancelAnimationFrame } = lifecycle;
+const performance = { now: lifecycle.now };
 /* Doom-style raycasting FPS mini-game */
 
 // 3x3 grid of rooms connected by single-tile doorways, so enemies in other
@@ -699,6 +702,9 @@ function spawnPickups() {
 }
 
 function startGame() {
+  canvas.tabIndex = 0;
+  canvas.setAttribute('aria-label', 'Doom: WASD — движение, стрелки — поворот, пробел — выстрел');
+  canvas.focus({ preventScroll: true });
   player = { x: 2.5, y: 2.5, angle: 0.6, health: 100 };
   waveIndex = 0;
   totalKills = 0;
@@ -721,9 +727,11 @@ function startGame() {
 els.difficultyTabs.forEach((tab) => {
   tab.classList.toggle("active", tab.dataset.difficulty === difficulty);
   tab.addEventListener("click", () => {
+    if (phase === 'playing' && !confirm('Изменить сложность и начать новую игру?')) return;
     difficulty = tab.dataset.difficulty;
     els.difficultyTabs.forEach((t) => t.classList.toggle("active", t === tab));
-    if (phase !== "playing") {
+    if (phase === 'playing') startGame();
+    else {
       const cfg = DIFFICULTY[difficulty];
       showOverlay("DOOM", `${cfg.waves.length} волны демонов, всего ${totalEnemiesFor(cfg)}. После старта у вас есть пара секунд, чтобы осмотреться.`, "Начать игру");
     }
@@ -749,17 +757,19 @@ function resolveKey(ev) {
   return KEY_CODE_MAP[ev.code] || ev.key.toLowerCase();
 }
 
-window.addEventListener("keydown", (ev) => {
+lifecycle.listen(window, "keydown", (ev) => {
+  if (ev.target.closest?.('input, select, textarea, button, a, summary')) return;
   const key = resolveKey(ev);
   if (["w", "a", "s", "d", "arrowleft", "arrowright", " "].includes(key) && phase === "playing") {
     ev.preventDefault();
   }
   keys[key] = true;
-  if (key === " ") shoot();
+  if (key === " " && phase === 'playing') shoot();
 });
-window.addEventListener("keyup", (ev) => {
+lifecycle.listen(window, "keyup", (ev) => {
   keys[resolveKey(ev)] = false;
 });
+lifecycle.listen(window, 'blur', () => { keys = {}; });
 
 canvas.addEventListener("mousedown", () => {
   if (phase !== "playing") return;
@@ -773,14 +783,28 @@ document.addEventListener("mousemove", (ev) => {
   }
 });
 
-document.addEventListener("visibilitychange", () => {
-  if (document.hidden && phase === "playing") {
-    phase = "idle";
-    if (rafId) cancelAnimationFrame(rafId);
-    showOverlay("Пауза", "Игра приостановлена — вкладка была неактивна.", "Начать заново");
-  }
+// Navigation pauses the game's virtual clock, including enemy and power-up timers.
+const touch = document.createElement('div');
+touch.className = 'doom-touch-controls';
+touch.innerHTML = '<div class="doom-pad"><button type="button" data-key="w" aria-label="Вперёд">↑</button><button type="button" data-key="arrowleft" aria-label="Повернуть налево">↶</button><button type="button" data-key="s" aria-label="Назад">↓</button><button type="button" data-key="arrowright" aria-label="Повернуть направо">↷</button></div><button type="button" class="doom-fire" data-key=" " aria-label="Выстрел">Выстрел</button>';
+document.querySelector('.doom-controls-hint').before(touch);
+touch.querySelectorAll('button').forEach(button => {
+  const release = () => { keys[button.dataset.key] = false; };
+  button.addEventListener('pointerdown', event => {
+    event.preventDefault();
+    button.setPointerCapture(event.pointerId);
+    keys[button.dataset.key] = true;
+    if (button.dataset.key === ' ' && phase === 'playing') shoot();
+  });
+  button.addEventListener('pointerup', release);
+  button.addEventListener('pointercancel', release);
+  button.addEventListener('lostpointercapture', release);
 });
 
 showOverlay("DOOM", `${DIFFICULTY[difficulty].waves.length} волны демонов, всего ${totalEnemiesFor(DIFFICULTY[difficulty])}. После старта у вас есть пара секунд, чтобы осмотреться.`, "Начать игру");
 updateHud();
 initStatsPanel("doom");
+
+return { pause() { keys = {}; if (globalThis.document.pointerLockElement === canvas) globalThis.document.exitPointerLock(); } };
+
+}

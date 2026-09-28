@@ -1,3 +1,6 @@
+export function mount(lifecycle) {
+const { document, setTimeout, setInterval, clearTimeout, clearInterval, requestAnimationFrame, cancelAnimationFrame } = lifecycle;
+const performance = { now: lifecycle.now };
 const SYMBOLS = [
   { icon: "🍒", weight: 35, pay: { 3: 1, 4: 3, 5: 8 } },
   { icon: "🍋", weight: 25, pay: { 3: 2, 4: 5, 5: 12 } },
@@ -307,3 +310,5 @@ els.withdrawDone.addEventListener("click", () => {
 renderBalance();
 renderBet();
 els.reels.forEach((_, i) => setReelSymbol(i, SYMBOLS[i % SYMBOLS.length].icon));
+
+}

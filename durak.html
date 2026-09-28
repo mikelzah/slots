@@ -5,57 +5,53 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>АМС-КОМПЛЕКС · Дурак Онлайн</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%231565c0%22/><text x=%2250%22 y=%2268%22 font-size=%2260%22 fill=%22white%22 text-anchor=%22middle%22 font-family=%22Arial%22>A</text></svg>" />
+<meta name="theme-color" content="#1769b0" />
 <link rel="stylesheet" href="style.css" />
 <link rel="stylesheet" href="durak.css" />
+<link rel="stylesheet" href="checkers.css" />
+<link rel="stylesheet" href="doom.css" />
+<link rel="stylesheet" href="minesweeper.css" />
 <link rel="stylesheet" href="achievements.css" />
+<link rel="stylesheet" href="ui.css" />
 </head>
-<body>
+<body class="app-page page-durak">
+<a class="skip-link" href="#mainContent">Перейти к игре</a>
 <header class="topbar">
-  <div class="topbar-left">
-    <div class="logo">A</div>
-    <span class="brand">АМС-КОМПЛЕКС</span>
-    <nav class="topnav">
-      <a href="index.html">Слот-Симулятор</a>
-      <a href="#" class="active">Дурак Онлайн</a>
-      <a href="checkers.html">Шашки</a>
-      <a href="doom.html">Doom</a>
-      <a href="achievements.html">Достижения</a>
-      <a href="minesweeper.html">Сапёр</a>
-    </nav>
-  </div>
-  <div class="topbar-right">
-    <span class="install">Инсталляция: 001 - АО "Золото Селигдара" <span class="chev">▾</span></span>
-    <span class="user">System Administrator <span class="chev">▾</span></span>
-    <span class="help">?</span>
-  </div>
+  <a class="brand-link" href="index.html#slot" aria-label="АМС-КОМПЛЕКС — главная">
+    <span class="logo">A</span><span class="brand">АМС-КОМПЛЕКС<small>Игровой модуль</small></span>
+  </a>
+  <div class="workspace-name"><span class="workspace-dot"></span>АО «Золото Селигдара»<span class="workspace-id">Инсталляция 001</span></div>
+  <a class="header-account" href="index.html#profile" aria-label="Открыть профиль"><span class="account-avatar" data-profile-avatar aria-hidden="true">И</span><span class="account-label"><span data-profile-name>Игрок</span><small>Локальный профиль</small></span></a>
+  <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="siteSidebar"><span aria-hidden="true">☰</span> Меню</button>
 </header>
 
 <div class="page">
-  <aside class="sidebar">
-    <div class="sidebar-item locked-feature" data-feature="Техобслуживание"><span class="dot dot-teal"></span>Техобслуживание<span class="lock-icon">🔒</span></div>
-    <div class="sidebar-item locked-feature" data-feature="Отклонения"><span class="dot dot-red"></span>Отклонения<span class="lock-icon">🔒</span></div>
-    <div class="sidebar-item locked-feature" data-feature="Склад"><span class="dot dot-purple"></span>Склад<span class="lock-icon">🔒</span></div>
-    <div class="sidebar-item locked-feature" data-feature="Закупки"><span class="dot dot-green"></span>Закупки<span class="lock-icon">🔒</span></div>
-    <div class="sidebar-item locked-feature" data-feature="Справочники"><span class="dot dot-orange"></span>Справочники<span class="lock-icon">🔒</span></div>
-    <div class="sidebar-item locked-feature" data-feature="Уведомления"><span class="dot dot-blue"></span>Уведомления<span class="lock-icon">🔒</span></div>
-    <a href="index.html" class="sidebar-item">
-      <span class="dot dot-cyan"></span>Слот-Симулятор
-    </a>
-    <div class="sidebar-item active"><span class="dot dot-red"></span>Дурак Онлайн</div>
-    <a href="checkers.html" class="sidebar-item">
-      <span class="dot dot-orange"></span>Шашки
-    </a>
-    <a href="doom.html" class="sidebar-item">
-      <span class="dot dot-purple"></span>Doom
-    </a>
-    <a href="achievements.html" class="sidebar-item">
-      <span class="dot dot-gold"></span>Достижения
-      <span class="ach-badge">0/40</span>
-    </a>
-    <a href="minesweeper.html" class="sidebar-item"><span class="dot dot-green"></span>Сапёр</a>
+  <aside class="sidebar" id="siteSidebar">
+    <div class="sidebar-label">Игровой модуль</div>
+    <nav class="game-nav" aria-label="Игры и достижения">
+      <a href="index.html#slot" class="sidebar-item"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M9 5v14M15 5v14M5 12h2m4 0h2m4 0h2"/></svg><span>Слот-Симулятор</span></a>
+      <a href="index.html#durak" class="sidebar-item active" aria-current="page"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="3" width="13" height="17" rx="2"/><path d="m4 6-2 13a2 2 0 0 0 2 2l9 1M13.5 8l3 4-3 4-3-4z"/></svg><span>Дурак Онлайн</span></a>
+      <a href="index.html#checkers" class="sidebar-item"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/></svg><span>Шашки</span></a>
+      <a href="index.html#minesweeper" class="sidebar-item"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="6"/><path d="M12 2v4m0 12v4M2 12h4m12 0h4M5 5l3 3m8 8 3 3M5 19l3-3m8-8 3-3"/></svg><span>Сапёр</span></a>
+      <a href="index.html#doom" class="sidebar-item"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 1v5m0 12v5M1 12h5m12 0h5"/></svg><span>Doom</span></a>
+      <a href="index.html#achievements" class="sidebar-item"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3h8v6a4 4 0 0 1-8 0zM8 5H4v3a4 4 0 0 0 4 4m8-7h4v3a4 4 0 0 1-4 4M12 13v5m-4 3h8m-6-3h4v3h-4z"/></svg><span>Достижения</span><span class="ach-badge">0/40</span></a>
+      <a href="index.html#profile" class="sidebar-item"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/></svg><span>Мой профиль</span></a>
+    </nav>
+    <details class="module-nav">
+      <summary>Модули комплекса <span class="pro-label">PRO</span></summary>
+      <p>Демонстрация корпоративных модулей</p>
+      <button type="button" class="sidebar-item locked-feature" data-feature="Техобслуживание"><span class="dot dot-blue"></span>Техобслуживание<span class="lock-icon" aria-label="Демо">↗</span></button>
+      <button type="button" class="sidebar-item locked-feature" data-feature="Отклонения"><span class="dot dot-blue"></span>Отклонения<span class="lock-icon" aria-label="Демо">↗</span></button>
+      <button type="button" class="sidebar-item locked-feature" data-feature="Склад"><span class="dot dot-blue"></span>Склад<span class="lock-icon" aria-label="Демо">↗</span></button>
+      <button type="button" class="sidebar-item locked-feature" data-feature="Закупки"><span class="dot dot-blue"></span>Закупки<span class="lock-icon" aria-label="Демо">↗</span></button>
+      <button type="button" class="sidebar-item locked-feature" data-feature="Справочники"><span class="dot dot-blue"></span>Справочники<span class="lock-icon" aria-label="Демо">↗</span></button>
+      <button type="button" class="sidebar-item locked-feature" data-feature="Уведомления"><span class="dot dot-blue"></span>Уведомления<span class="lock-icon" aria-label="Демо">↗</span></button>
+    </details>
+    <div class="sidebar-note"><span class="workspace-dot"></span><div>Ваш прогресс — здесь<small>Статистика и достижения сохраняются в этом браузере.</small></div></div>
   </aside>
 
-  <main class="content">
+  <main class="content" id="mainContent" tabindex="-1">
+    <div class="page-context"><span>Игровой модуль</span><span aria-hidden="true">/</span><strong>Дурак Онлайн</strong><span class="category-label">Карточные игры</span></div>
     <div class="stack">
     <div class="mode-select">
       <div class="method-tabs" id="gameModeTabs">
@@ -67,7 +63,7 @@
     <div id="botModeWrap">
     <div class="card durak-card" id="game">
       <div class="card-header">
-        <span class="card-icon">🃏</span>
+        <span class="card-icon"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="3" width="13" height="17" rx="2"/><path d="m4 6-2 13a2 2 0 0 0 2 2l9 1M13.5 8l3 4-3 4-3-4z"/></svg></span>
         <h1>Дурак Онлайн</h1>
         <button id="newGameBtn" class="new-game-btn">Новая игра</button>
       </div>
@@ -97,8 +93,9 @@
         </div>
       </div>
 
-      <div class="durak-status" id="durakStatus">Раздаём карты...</div>
+      <div class="durak-status" id="durakStatus" role="status" aria-live="polite">Раздаём карты...</div>
 
+      <div class="game-stage durak-stage">
       <div class="bot-hand" id="botHand"></div>
 
       <div class="durak-table" id="durakTable"></div>
@@ -110,12 +107,13 @@
       </div>
 
       <div class="player-hand" id="playerHand"></div>
+      </div>
     </div>
 
     <div class="card stats-card">
       <div class="card-header">
         <span class="card-icon">📊</span>
-        <h1>Статистика партий</h1>
+        <h2>Статистика партий</h2>
         <button id="statsResetBtn" class="new-game-btn">Сбросить</button>
       </div>
       <div class="stats-table">
@@ -141,18 +139,18 @@
       <p class="subtitle">Играйте вживую с другим человеком по коду комнаты — без бота.</p>
 
       <div class="online-lobby" id="onlineLobby">
-        <div class="field-error" id="onlineConfigWarning">
-          ⚠️ Онлайн-режим не настроен. Заполните свои ключи Firebase в файле <code>firebase-config.js</code> (инструкция в комментариях файла).
+        <div class="field-error" id="onlineConfigWarning" role="alert">
+          Онлайн-игра пока недоступна. Вы можете сыграть против бота.
         </div>
         <div class="lobby-actions">
           <button id="onlineCreateBtn" class="withdraw-btn">Создать комнату</button>
           <div class="lobby-divider">или</div>
           <div class="lobby-join-row">
-            <input id="onlineJoinCode" class="field-input" placeholder="Код комнаты" maxlength="6" />
+            <label class="sr-only" for="onlineJoinCode">Код комнаты</label><input autocomplete="off" autocapitalize="characters" spellcheck="false" id="onlineJoinCode" class="field-input" placeholder="Код комнаты" maxlength="6" />
             <button id="onlineJoinBtn" class="withdraw-btn secondary">Войти</button>
           </div>
         </div>
-        <div class="field-error" id="onlineLobbyError"></div>
+        <div class="field-error" id="onlineLobbyError" role="alert"></div>
       </div>
 
       <div class="online-room hidden" id="onlineRoom">
@@ -178,8 +176,9 @@
           </div>
         </div>
 
-        <div class="durak-status" id="onlineStatus">Ожидаем соперника...</div>
+        <div class="durak-status" id="onlineStatus" role="status" aria-live="polite">Ожидаем соперника...</div>
 
+        <div class="game-stage durak-stage">
         <div class="bot-hand" id="onOppHand"></div>
 
         <div class="durak-table" id="onlineTable"></div>
@@ -191,9 +190,12 @@
         </div>
 
         <div class="player-hand" id="onMyHand"></div>
+        </div>
       </div>
     </div>
     </div>
+      </div>
+    <footer class="page-footer"><span>АМС-КОМПЛЕКС · Игровой модуль</span><span>Прогресс партий сохраняется при переходах</span></footer>
   </main>
 </div>
 
@@ -249,7 +251,7 @@
         <input type="text" id="paywallPhoneNumber" class="field-input" placeholder="+7 900 000-00-00" inputmode="tel" maxlength="18" />
       </div>
 
-      <div class="field-error" id="paywallPayError"></div>
+      <div class="field-error" id="paywallPayError" role="alert"></div>
 
       <button id="paywallConfirmBtn" class="withdraw-btn">Оплатить 2 990 ₽</button>
       <button id="paywallBackBtn" class="withdraw-btn secondary">Назад</button>
@@ -266,13 +268,13 @@
 
 <div class="ach-toast-layer" id="achToastLayer"></div>
 
+<script src="profile-store.js"></script>
 <script src="stats.js"></script>
 <script src="achievements.js"></script>
-<script src="durak.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
+<script src="minesweeper-engine.js"></script>
 <script src="firebase-config.js"></script>
-<script src="durak-online.js"></script>
 <script src="paywall.js"></script>
+<script src="site.js"></script>
+<script type="module" src="app.js"></script>
 </body>
 </html>

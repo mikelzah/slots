@@ -236,7 +236,8 @@ function processAchQueue() {
   wrap.className = "ach-toast";
   wrap.innerHTML = `
     <div class="ach-toast-backdrop"></div>
-    <div class="ach-toast-card">
+    <div class="ach-toast-card" role="status">
+      <button type="button" class="ach-toast-close" aria-label="Закрыть уведомление">×</button>
       <div class="ach-toast-eyebrow">Достижение открыто</div>
       <div class="ach-toast-icon">${a.icon}</div>
       <div class="ach-toast-game">${GAME_LABELS[a.game]}</div>
@@ -245,8 +246,7 @@ function processAchQueue() {
     </div>
   `;
   layer.appendChild(wrap);
-  achPlayChime();
-  const stopConfetti = achLaunchConfetti(wrap);
+  const stopConfetti = null;
 
   let dismissed = false;
   const dismiss = () => {
@@ -260,7 +260,7 @@ function processAchQueue() {
     }, 400);
   };
 
-  wrap.addEventListener("click", dismiss);
+  wrap.querySelector('.ach-toast-close').addEventListener("click", dismiss);
   requestAnimationFrame(() => wrap.classList.add("ach-toast-in"));
   setTimeout(dismiss, 4200);
 }
@@ -298,7 +298,7 @@ function renderAchievementsPage() {
         })
         .join("");
       return `
-        <section class="ach-group">
+        <section class="ach-group" data-game="${game}">
           <div class="ach-group-head">
             <span class="ach-group-icon">${GAME_ICONS[game]}</span>
             <h2>${GAME_LABELS[game]}</h2>

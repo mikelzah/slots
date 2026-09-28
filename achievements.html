@@ -5,65 +5,60 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>АМС-КОМПЛЕКС · Достижения</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%231565c0%22/><text x=%2250%22 y=%2268%22 font-size=%2260%22 fill=%22white%22 text-anchor=%22middle%22 font-family=%22Arial%22>A</text></svg>" />
+<meta name="theme-color" content="#1769b0" />
 <link rel="stylesheet" href="style.css" />
+<link rel="stylesheet" href="durak.css" />
+<link rel="stylesheet" href="checkers.css" />
+<link rel="stylesheet" href="doom.css" />
+<link rel="stylesheet" href="minesweeper.css" />
 <link rel="stylesheet" href="achievements.css" />
+<link rel="stylesheet" href="ui.css" />
 </head>
-<body>
+<body class="app-page page-achievements">
+<a class="skip-link" href="#mainContent">Перейти к игре</a>
 <header class="topbar">
-  <div class="topbar-left">
-    <div class="logo">A</div>
-    <span class="brand">АМС-КОМПЛЕКС</span>
-    <nav class="topnav">
-      <a href="index.html">Слот-Симулятор</a>
-      <a href="durak.html">Дурак Онлайн</a>
-      <a href="checkers.html">Шашки</a>
-      <a href="doom.html">Doom</a>
-      <a href="#" class="active">Достижения</a>
-      <a href="minesweeper.html">Сапёр</a>
-    </nav>
-  </div>
-  <div class="topbar-right">
-    <span class="install">Инсталляция: 001 - АО "Золото Селигдара" <span class="chev">▾</span></span>
-    <span class="user">System Administrator <span class="chev">▾</span></span>
-    <span class="help">?</span>
-  </div>
+  <a class="brand-link" href="index.html#slot" aria-label="АМС-КОМПЛЕКС — главная">
+    <span class="logo">A</span><span class="brand">АМС-КОМПЛЕКС<small>Игровой модуль</small></span>
+  </a>
+  <div class="workspace-name"><span class="workspace-dot"></span>АО «Золото Селигдара»<span class="workspace-id">Инсталляция 001</span></div>
+  <a class="header-account" href="index.html#profile" aria-label="Открыть профиль"><span class="account-avatar" data-profile-avatar aria-hidden="true">И</span><span class="account-label"><span data-profile-name>Игрок</span><small>Локальный профиль</small></span></a>
+  <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="siteSidebar"><span aria-hidden="true">☰</span> Меню</button>
 </header>
 
 <div class="page">
-  <aside class="sidebar">
-    <div class="sidebar-item locked-feature" data-feature="Техобслуживание"><span class="dot dot-teal"></span>Техобслуживание<span class="lock-icon">🔒</span></div>
-    <div class="sidebar-item locked-feature" data-feature="Отклонения"><span class="dot dot-red"></span>Отклонения<span class="lock-icon">🔒</span></div>
-    <div class="sidebar-item locked-feature" data-feature="Склад"><span class="dot dot-purple"></span>Склад<span class="lock-icon">🔒</span></div>
-    <div class="sidebar-item locked-feature" data-feature="Закупки"><span class="dot dot-green"></span>Закупки<span class="lock-icon">🔒</span></div>
-    <div class="sidebar-item locked-feature" data-feature="Справочники"><span class="dot dot-orange"></span>Справочники<span class="lock-icon">🔒</span></div>
-    <div class="sidebar-item locked-feature" data-feature="Уведомления"><span class="dot dot-blue"></span>Уведомления<span class="lock-icon">🔒</span></div>
-    <a href="index.html" class="sidebar-item">
-      <span class="dot dot-cyan"></span>Слот-Симулятор
-    </a>
-    <a href="durak.html" class="sidebar-item">
-      <span class="dot dot-red"></span>Дурак Онлайн
-    </a>
-    <a href="checkers.html" class="sidebar-item">
-      <span class="dot dot-orange"></span>Шашки
-    </a>
-    <a href="doom.html" class="sidebar-item">
-      <span class="dot dot-purple"></span>Doom
-    </a>
-    <div class="sidebar-item active">
-      <span class="dot dot-gold"></span>Достижения
-      <span class="ach-badge">0/40</span>
-    </div>
-    <a href="minesweeper.html" class="sidebar-item"><span class="dot dot-green"></span>Сапёр</a>
+  <aside class="sidebar" id="siteSidebar">
+    <div class="sidebar-label">Игровой модуль</div>
+    <nav class="game-nav" aria-label="Игры и достижения">
+      <a href="index.html#slot" class="sidebar-item"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M9 5v14M15 5v14M5 12h2m4 0h2m4 0h2"/></svg><span>Слот-Симулятор</span></a>
+      <a href="index.html#durak" class="sidebar-item"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="3" width="13" height="17" rx="2"/><path d="m4 6-2 13a2 2 0 0 0 2 2l9 1M13.5 8l3 4-3 4-3-4z"/></svg><span>Дурак Онлайн</span></a>
+      <a href="index.html#checkers" class="sidebar-item"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/></svg><span>Шашки</span></a>
+      <a href="index.html#minesweeper" class="sidebar-item"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="6"/><path d="M12 2v4m0 12v4M2 12h4m12 0h4M5 5l3 3m8 8 3 3M5 19l3-3m8-8 3-3"/></svg><span>Сапёр</span></a>
+      <a href="index.html#doom" class="sidebar-item"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 1v5m0 12v5M1 12h5m12 0h5"/></svg><span>Doom</span></a>
+      <a href="index.html#achievements" class="sidebar-item active" aria-current="page"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3h8v6a4 4 0 0 1-8 0zM8 5H4v3a4 4 0 0 0 4 4m8-7h4v3a4 4 0 0 1-4 4M12 13v5m-4 3h8m-6-3h4v3h-4z"/></svg><span>Достижения</span><span class="ach-badge">0/40</span></a>
+      <a href="index.html#profile" class="sidebar-item"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/></svg><span>Мой профиль</span></a>
+    </nav>
+    <details class="module-nav">
+      <summary>Модули комплекса <span class="pro-label">PRO</span></summary>
+      <p>Демонстрация корпоративных модулей</p>
+      <button type="button" class="sidebar-item locked-feature" data-feature="Техобслуживание"><span class="dot dot-blue"></span>Техобслуживание<span class="lock-icon" aria-label="Демо">↗</span></button>
+      <button type="button" class="sidebar-item locked-feature" data-feature="Отклонения"><span class="dot dot-blue"></span>Отклонения<span class="lock-icon" aria-label="Демо">↗</span></button>
+      <button type="button" class="sidebar-item locked-feature" data-feature="Склад"><span class="dot dot-blue"></span>Склад<span class="lock-icon" aria-label="Демо">↗</span></button>
+      <button type="button" class="sidebar-item locked-feature" data-feature="Закупки"><span class="dot dot-blue"></span>Закупки<span class="lock-icon" aria-label="Демо">↗</span></button>
+      <button type="button" class="sidebar-item locked-feature" data-feature="Справочники"><span class="dot dot-blue"></span>Справочники<span class="lock-icon" aria-label="Демо">↗</span></button>
+      <button type="button" class="sidebar-item locked-feature" data-feature="Уведомления"><span class="dot dot-blue"></span>Уведомления<span class="lock-icon" aria-label="Демо">↗</span></button>
+    </details>
+    <div class="sidebar-note"><span class="workspace-dot"></span><div>Ваш прогресс — здесь<small>Статистика и достижения сохраняются в этом браузере.</small></div></div>
   </aside>
 
-  <main class="content">
+  <main class="content" id="mainContent" tabindex="-1">
+    <div class="page-context"><span>Игровой модуль</span><span aria-hidden="true">/</span><strong>Достижения</strong><span class="category-label">Личный прогресс</span></div>
     <div class="card achievements-card">
       <div class="card-header">
-        <span class="card-icon">🏆</span>
+        <span class="card-icon"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3h8v6a4 4 0 0 1-8 0zM8 5H4v3a4 4 0 0 0 4 4m8-7h4v3a4 4 0 0 1-4 4M12 13v5m-4 3h8m-6-3h4v3h-4z"/></svg></span>
         <h1>Достижения</h1>
         <button id="achResetBtn" class="new-game-btn">Сбросить</button>
       </div>
-      <p class="subtitle">Личные ачивки за игру в Слот-Симулятор, Дурак Онлайн, Шашки и Doom. Прогресс хранится в этом браузере.</p>
+      <p class="subtitle">Ваши победы и маленькие рекорды. Выберите игру, чтобы посмотреть условия достижений.</p>
 
       <div class="ach-summary">
         <span class="ach-summary-label">Открыто</span>
@@ -71,14 +66,90 @@
         <span class="ach-summary-count" id="achSummaryCount">0 / 40</span>
       </div>
 
+      <div class="ach-filters" aria-label="Фильтр по игре"><button type="button" data-ach-filter="all" aria-pressed="true">Все игры</button><button type="button" data-ach-filter="slot" aria-pressed="false">Слоты</button><button type="button" data-ach-filter="durak" aria-pressed="false">Дурак</button><button type="button" data-ach-filter="checkers" aria-pressed="false">Шашки</button><button type="button" data-ach-filter="doom" aria-pressed="false">Doom</button></div>
       <div id="achList"></div>
     </div>
+      <footer class="page-footer"><span>АМС-КОМПЛЕКС · Игровой модуль</span><span>Прогресс партий сохраняется при переходах</span></footer>
   </main>
 </div>
 
+<div class="modal-overlay hidden" id="paywallOverlay">
+  <div class="modal saas-modal">
+    <button class="modal-close" id="paywallClose" aria-label="Закрыть">×</button>
+
+    <div class="saas-form" id="paywallForm">
+      <div class="saas-badge">🔒 АМС PRO</div>
+      <h2 class="saas-title">Оформите подписку</h2>
+      <p class="saas-subtitle">Раздел «<span id="paywallFeature">Техобслуживание</span>» и другие модули доступны на тарифе PRO.</p>
+
+      <ul class="saas-features">
+        <li>✓ Техобслуживание — учёт оборудования и наряды</li>
+        <li>✓ Отклонения — журнал инцидентов</li>
+        <li>✓ Склад — движение и остатки ТМЦ</li>
+        <li>✓ Закупки — формы и согласования</li>
+        <li>✓ Справочники — единый мастер-каталог</li>
+        <li>✓ Уведомления — оповещения в реальном времени</li>
+      </ul>
+
+      <div class="saas-price-row">
+        <span class="saas-price">2 990 ₽</span>
+        <span class="saas-price-period">/ месяц</span>
+      </div>
+
+      <button id="paywallPayBtn" class="withdraw-btn saas-pay-btn">Оплатить</button>
+      <div class="saas-note">Демо-режим: оплата имитируется и не списывает реальные средства.</div>
+    </div>
+
+    <div class="saas-payment hidden" id="paywallPayment">
+      <h2 class="saas-title">Оплата подписки</h2>
+      <div class="withdraw-amount-row">
+        <span class="balance-label">К оплате</span>
+        <span class="withdraw-amount">2 990 <span class="currency">₽</span></span>
+      </div>
+
+      <div class="method-tabs">
+        <button type="button" class="method-tab active" data-method="card">Банковская карта</button>
+        <button type="button" class="method-tab" data-method="sbp">СБП</button>
+      </div>
+
+      <div class="method-panel" id="paywallPanelCard">
+        <label class="field-label" for="paywallCardNumber">Номер карты</label>
+        <div class="card-input-wrap">
+          <span class="card-brand" id="paywallCardBrand"></span>
+          <input type="text" id="paywallCardNumber" class="field-input" placeholder="0000 0000 0000 0000" inputmode="numeric" maxlength="19" />
+        </div>
+      </div>
+
+      <div class="method-panel hidden" id="paywallPanelSbp">
+        <label class="field-label" for="paywallPhoneNumber">Номер телефона</label>
+        <input type="text" id="paywallPhoneNumber" class="field-input" placeholder="+7 900 000-00-00" inputmode="tel" maxlength="18" />
+      </div>
+
+      <div class="field-error" id="paywallPayError" role="alert"></div>
+
+      <button id="paywallConfirmBtn" class="withdraw-btn">Оплатить 2 990 ₽</button>
+      <button id="paywallBackBtn" class="withdraw-btn secondary">Назад</button>
+    </div>
+
+    <div class="withdraw-success hidden" id="paywallSuccess">
+      <div class="success-icon">✓</div>
+      <div class="success-title">Платёж имитирован</div>
+      <div class="success-detail">Это демонстрационный стенд — модули остаются закрытыми.</div>
+      <button id="paywallDone" class="withdraw-btn secondary">Понятно</button>
+    </div>
+  </div>
+</div>
+
+
 <div class="ach-toast-layer" id="achToastLayer"></div>
 
+<script src="profile-store.js"></script>
+<script src="stats.js"></script>
 <script src="achievements.js"></script>
-<script>initAchievementsPage();</script>
+<script src="minesweeper-engine.js"></script>
+<script src="firebase-config.js"></script>
+<script src="paywall.js"></script>
+<script src="site.js"></script>
+<script type="module" src="app.js"></script>
 </body>
 </html>

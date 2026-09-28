@@ -1,3 +1,7 @@
+import { initOnline } from './durak-online.js';
+export function mount(lifecycle) {
+const { document, setTimeout, setInterval, clearTimeout, clearInterval, requestAnimationFrame, cancelAnimationFrame } = lifecycle;
+const performance = { now: lifecycle.now };
 const SUITS = ["♠", "♥", "♦", "♣"];
 const RANKS = [6, 7, 8, 9, 10, 11, 12, 13, 14];
 const RANK_LABEL = { 11: "J", 12: "Q", 13: "K", 14: "A" };
@@ -97,6 +101,7 @@ function sortHand(hand) {
 }
 
 function initGame() {
+  lifecycle.clearTimers();
   const deck = createDeck();
   const trumpCard = deck[deck.length - 1];
   const player = [];
@@ -146,7 +151,8 @@ function noteDefend(card) {
 }
 
 function makeCardEl(card, { faceDown = false, clickable = false, extraClass = "" } = {}) {
-  const el = document.createElement("div");
+  const el = document.createElement(clickable ? "button" : "div");
+  if (clickable) { el.type = 'button'; el.setAttribute('aria-label', `Сыграть ${cardText(card)}`); }
   el.className = `playing-card ${extraClass}`.trim();
   if (faceDown) {
     el.classList.add("back");
@@ -578,3 +584,7 @@ els.newGameBtn.addEventListener("click", () => {
 
 initStatsPanel("durak");
 initGame();
+
+initOnline({ document, setTimeout, cardText, cardBeats, makeCardEl, createDeck, sortHand, isRed });
+
+}

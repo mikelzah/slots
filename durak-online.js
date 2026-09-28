@@ -1,3 +1,4 @@
+export function initOnline({ document, setTimeout, cardText, cardBeats, makeCardEl, createDeck, sortHand, isRed }) {
 // Онлайн-режим «Дурак с другом»: два человека играют друг с другом через
 // Firebase Realtime Database вместо бота. Хост (создатель комнаты) держит
 // авторитетное состояние партии в своём браузере и рассылает его гостю;
@@ -83,7 +84,7 @@ function getDb() {
   if (!firebaseInitTried) {
     firebaseInitTried = true;
     try {
-      firebase.initializeApp(window.FIREBASE_CONFIG);
+      if (!firebase.apps.length) firebase.initializeApp(window.FIREBASE_CONFIG);
       firebaseDb = firebase.database();
     } catch (e) {
       console.error("Не удалось инициализировать Firebase:", e);
@@ -94,7 +95,7 @@ function getDb() {
 }
 
 function refreshOnlineAvailability() {
-  const ready = isFirebaseConfigured();
+  const ready = isFirebaseConfigured() && !!globalThis.firebase?.database;
   onEls.createBtn.disabled = !ready;
   onEls.joinBtn.disabled = !ready;
   onEls.configWarning.classList.toggle("hidden", ready);
@@ -608,3 +609,6 @@ onEls.bitoBtn.addEventListener("click", () => requestAction("bito"));
 onEls.giveBtn.addEventListener("click", () => requestAction("give"));
 
 refreshOnlineAvailability();
+document.addEventListener('firebase-ready', refreshOnlineAvailability);
+
+}

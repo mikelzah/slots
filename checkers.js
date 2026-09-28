@@ -1,3 +1,6 @@
+export function mount(lifecycle) {
+const { document, setTimeout, setInterval, clearTimeout, clearInterval, requestAnimationFrame, cancelAnimationFrame } = lifecycle;
+const performance = { now: lifecycle.now };
 const SIZE = 8;
 
 const DIRS = {
@@ -244,6 +247,7 @@ function updateCounts() {
 }
 
 function startGame() {
+  lifecycle.clearTimers();
   board = createBoard();
   playerTurn = true;
   selected = null;
@@ -273,7 +277,8 @@ function render() {
 
   for (let r = 0; r < SIZE; r++) {
     for (let c = 0; c < SIZE; c++) {
-      const sq = document.createElement("div");
+      const sq = document.createElement("button");
+      sq.type = "button";
       const isDark = (r + c) % 2 === 1;
       sq.className = `square ${isDark ? "dark" : "light"}`;
 
@@ -288,13 +293,18 @@ function render() {
       }
 
       const piece = board[r][c];
+      sq.setAttribute('aria-label', `${String.fromCharCode(97 + c)}${8 - r}: ${piece ? (piece.owner === 'player' ? 'ваша ' : 'соперника ') + (piece.king ? 'дамка' : 'шашка') : 'пусто'}${destSet.has(`${r},${c}`) ? ', доступный ход' : ''}`);
+      sq.setAttribute('aria-pressed', String(!!selected && selected[0] === r && selected[1] === c));
       if (piece) {
         const p = document.createElement("div");
         p.className = `piece ${piece.owner}${piece.king ? " king" : ""}`;
         sq.appendChild(p);
       }
 
-      sq.addEventListener("click", () => onSquareClick(r, c));
+      sq.addEventListener("click", () => {
+        onSquareClick(r, c);
+        els.board.children[r * SIZE + c]?.focus({ preventScroll: true });
+      });
       els.board.appendChild(sq);
     }
   }
@@ -441,3 +451,5 @@ els.newGameBtn.addEventListener("click", startGame);
 
 initStatsPanel("checkers");
 startGame();
+
+}

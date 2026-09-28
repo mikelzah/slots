@@ -1,3 +1,6 @@
+export function mount(lifecycle) {
+const { document, setTimeout, setInterval, clearTimeout, clearInterval, requestAnimationFrame, cancelAnimationFrame } = lifecycle;
+const performance = { now: lifecycle.now };
 (() => {
   'use strict';
   const board = document.getElementById('mineBoard');
@@ -105,3 +108,5 @@
   initStatsPanel('minesweeper');
   newGame();
 })();
+
+}
